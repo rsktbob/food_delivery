@@ -1,0 +1,18 @@
+{% for menu_item in menu_items %}
+<div>
+    <p>{{menu_item.name}}</p>
+    <p>{{menu_item.price}}</p>
+    <img src="{{menu_item.image.url}}" alt="{{menu_item.name}}" width="200">
+
+    {% if can_order %}
+        <form hx-post="{% url "add_cart_item" menu_item.id %}" hx-target="#cart-message" hx-swap="innerHTML">
+            {% csrf_token %}
+            <button type="submit">點餐</button>
+        </form>
+    {% endif %}
+    
+    {% if  can_order %}
+        <div id="cart-message">加一些到購物車</div>
+    {% endif %}
+</div>
+{% endfor %}

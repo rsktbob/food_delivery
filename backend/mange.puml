@@ -1,0 +1,15 @@
+@startuml
+actor User
+participant "UI" as UI
+participant "OrderController" as Controller
+participant "OrderManger" as Manger
+
+note right of Controller
+<<Controller>>
+接收來自 UI 的系統事件請求
+end note
+
+User -> UI : clickPlaceOrder()
+UI -> Controller : placeOrder()
+Controller -> Manger : createOrder()
+@enduml

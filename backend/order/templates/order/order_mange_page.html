@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>orders</h2>
+{% for order in orders%}
+<p>Order #{{order.id}}</p>
+{% endfor %}
+
+<a href="{% url "home" %}">返回</a>
+
+{% endblock content %}

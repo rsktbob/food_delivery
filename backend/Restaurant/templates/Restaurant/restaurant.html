@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% include "head_bar.html" %}
+<div>
+    <h3>{{ restaurant.name }}</h3>
+    <img src="{{ restaurant.image.url }}" alt="{{ restaurant.name }}" width="200">
+    {% include "Restaurant/menu_items.html" with can_order=True %}
+    <a href="{% url "home" %}">返回</a>
+</div>
+{% endblock content %}

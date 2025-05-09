@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block  content %}
+{% include "head_bar.html" %}
+<h1>customer home test</h1>
+<form method="post" action="{% url 'logout' %}">
+    {% csrf_token %}
+    <button type="submit">登出</button>
+</form>
+
+<hr class="my-4 border-dark">
+
+<div>
+    {% for restaurant in restaurants %}
+    <div>
+        <h3>{{ restaurant.name }}</h3>
+        <img src="{{ restaurant.image.url }}" alt="{{ restaurant.name }}" width="200">
+        <a href="{% url "restaurant" %}?restaurant_id={{restaurant.id}}">點餐</a>
+    </div>
+    {% endfor %}
+</div>
+
+
+
+{% endblock content%}

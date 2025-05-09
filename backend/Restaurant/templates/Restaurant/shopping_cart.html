@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+{% include "head_bar.html" %}
+
+{% for cart in carts %}
+<div>
+    {% for cart_item in cart.cart_items.all %}
+    <div>
+        <p>{{cart_item}}</p>
+    </div>
+    {% endfor %}
+    <form method = "post" action = "{% url "create_order" cart.restaurant.id %}">
+        {% csrf_token %}
+        <button type>送出</button>
+    </form>
+
+    <hr class="my-4 border-dark">
+</div>
+
+{% endfor %}
+
+
+{% endblock content %}

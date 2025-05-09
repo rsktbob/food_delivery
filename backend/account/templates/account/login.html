@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block content %}
+<form method="post" action="">
+    {% csrf_token %}
+    {{form.as_p}}
+    <button type="submit">登入</button>
+</form>
+
+<a href="{% url "register" "customer" %}">customer</a>
+<a href="{% url "register" "vendor" %}">vendor</a>
+<a href="{% url "register" "courier" %}">courier</a>
+
+{% endblock content %}
