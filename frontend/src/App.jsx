@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
 import { getHelloWorld, getOrderById } from './api';
+import AuthPage from './AuthPage';
+import './styles.css'; // 假設你會創建這個樣式文件
 
 function App() {
   const [message, setMessage] = useState('');
-  const [order, setOrder] = useState(null);
-
+  const [user, setUser] = useState(null);
+  
   // 載入 Hello World 訊息
   useEffect(() => {
     const fetchMessage = async () => {
@@ -14,28 +16,57 @@ function App() {
     fetchMessage();
   }, []);
 
-  // 載入訂單資料
-  useEffect(() => {
-    const fetchOrder = async () => {
-      const orderData = await getOrderById(1); // 假設訂單 ID 是 1
-      setOrder(orderData);
-    };
+  const handleUserAuthenticated = (userData) => {
+    setUser(userData);
+    console.log('用戶已登入:', userData);
+  };
 
-    fetchOrder();
-  }, []);
+  const handleLogout = () => {
+    setUser(null);
+  };
 
+  // 當用戶未登入時，顯示認證頁面
+  if (!user) {
+    return <AuthPage onUserAuthenticated={handleUserAuthenticated} />;
+  }
+
+  // 用戶已登入後的內容
   return (
-    <div>
-      <h1>{message}</h1>  {/* 顯示 API 回傳的 Hello World 訊息 */}
-      
-      {order ? (
-        <div>
-          <h2>訂單編號: {order.order_id}</h2>
-          <p>狀態: {order.status}</p>
+    <div className="app-container">
+      <header className="app-header">
+        <h1>{message}</h1>
+        <div className="user-info">
+          <span>歡迎, {user.username} ({user.user_type})</span>
+          <button onClick={handleLogout}>登出</button>
         </div>
-      ) : (
-        <p>訂單資料載入中...</p>
-      )}
+      </header>
+      
+      <main className="app-content">
+        {user.user_type === 'customer' && (
+          <div className="customer-dashboard">
+            <h2>顧客主頁</h2>
+            <p>您的地址: {user.profile?.address || '未設定'}</p>
+            {/* 這裡可以放置顧客特有的功能 */}
+          </div>
+        )}
+        
+        {user.user_type === 'courier' && (
+          <div className="courier-dashboard">
+            <h2>快遞員主頁</h2>
+            <p>評分: {user.profile?.rating || '0'}</p>
+            <p>車輛類型: {user.profile?.vehicle_type || '未設定'}</p>
+            <p>車牌號碼: {user.profile?.license_plate || '未設定'}</p>
+            {/* 這裡可以放置快遞員特有的功能 */}
+          </div>
+        )}
+        
+        {user.user_type === 'vendor' && (
+          <div className="vendor-dashboard">
+            <h2>廠商主頁</h2>
+            {/* 這裡可以放置廠商特有的功能 */}
+          </div>
+        )}
+      </main>
     </div>
   );
 }
