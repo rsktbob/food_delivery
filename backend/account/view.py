@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from django.contrib.auth import authenticate, login
 from django.db import transaction
-from .models import BaseUser, CustomerProfile, CourierProfile, VendorProfile
+from .models import *
 
 @api_view(['POST'])
 def register_user(request):
@@ -29,29 +29,41 @@ def register_user(request):
     
     try:
         with transaction.atomic():
-            # 創建基本用戶
-            user = BaseUser.objects.create_user(
-                username=username,
-                email=email,
-                password=password,
-                user_type=user_type,
-                phone_number=phone_number
-            )
-            
             # 根據用戶類型創建對應的個人資料
             if user_type == 'customer':
                 address = request.data.get('address', '')
-                CustomerProfile.objects.create(user=user, address=address)
+                
+                CustomerUser.objects.create_user(
+                    username=username,
+                    email=email,
+                    password=password,
+                    user_type="customer",
+                    phone_number=phone_number,
+                    address=address
+                )
+            
             elif user_type == 'courier':
                 vehicle_type = request.data.get('vehicle_type', '')
                 license_plate = request.data.get('license_plate', '')
-                CourierProfile.objects.create(
-                    user=user,
+                
+                CourierUser.objects.create_user(
+                    username=username,
+                    email=email,
+                    password=password,
+                    user_type="customer",
+                    phone_number=phone_number,
                     vehicle_type=vehicle_type,
                     license_plate=license_plate
                 )
+
             elif user_type == 'vendor':
-                VendorProfile.objects.create(user=user)
+                VendorUser.objects.create_user(
+                    username=username,
+                    email=email,
+                    password=password,
+                    user_type="vendor",
+                    phone_number=phone_number
+                )
             
         return Response(
             {'success': '用戶註冊成功'},
@@ -73,7 +85,7 @@ def login_user(request):
             {'error': '請提供用戶名和密碼'},
             status=status.HTTP_400_BAD_REQUEST
         )
-    
+
     user = authenticate(request, username=username, password=password)
     
     if user is not None:
@@ -88,19 +100,16 @@ def login_user(request):
             'phone_number': user.phone_number
         }
         
+        print(isinstance(user, CustomerUser))
         # 根據用戶類型添加額外資訊
-        if user.is_customer():
-            user_data['profile'] = {
-                'address': user.customer_profile.address
-            }
-        elif user.is_courier():
-            user_data['profile'] = {
-                'rating': user.courier_profile.rating,
-                'vehicle_type': user.courier_profile.vehicle_type,
-                'license_plate': user.courier_profile.license_plate
-            }
-        elif user.is_vendor():
-            user_data['profile'] = {}  # 廠商可能沒有額外欄位
+        if isinstance(user, CustomerUser):
+            user_data['address'] = user.address
+        elif isinstance(user, CourierUser):
+            user_data['rating'] = user.rating
+            user_data['vehicle_type'] = user.vehicle_type
+            user_data['license_plate'] = user.license_plate
+        elif isinstance(user, VendorUser):
+            pass
         
         return Response(user_data)
     else:

@@ -5,7 +5,7 @@ from django.views.decorators.http import require_POST
 from django.db import transaction
 from .models import Cart, CartItem, Order, OrderItem
 from Restaurant.models import Restaurant, MenuItem
-from account.models import CourierProfile, BaseUser
+from account.models import CourierUser, BaseUser
 from django.utils import timezone
 import json
 from .services import *
@@ -107,7 +107,7 @@ class OrderManageHandler:
         
     @classmethod
     def enterOrderManagePage(cls, request):
-        customer = request.user.customer_profile
+        customer = request.user
         
         orders = Order.objects.filter(customer=customer)
         context = {"orders" : orders}

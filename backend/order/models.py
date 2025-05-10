@@ -1,9 +1,9 @@
 from django.db import models
-from account.models import CustomerProfile, CourierProfile, VendorProfile
+from account.models import CustomerUser, CourierUser, VendorUser
 from Restaurant.models import Restaurant, MenuItem
 
 class Cart(models.Model):
-    customer = models.ForeignKey(CustomerProfile, on_delete=models.CASCADE, related_name='cart')
+    customer = models.ForeignKey(CustomerUser, on_delete=models.CASCADE, related_name='cart')
     restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE, related_name="restaurant")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -63,9 +63,9 @@ class Order(models.Model):
     )
 
     
-    customer = models.ForeignKey(CustomerProfile, on_delete=models.CASCADE, related_name='orders')
+    customer = models.ForeignKey(CustomerUser, on_delete=models.CASCADE, related_name='orders')
     restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE, related_name='orders')
-    courier = models.ForeignKey(CourierProfile, on_delete=models.SET_NULL, null=True, blank=True, related_name='deliveries')
+    courier = models.ForeignKey(CourierUser, on_delete=models.SET_NULL, null=True, blank=True, related_name='deliveries')
     delivery_address = models.CharField(max_length=255)
     status = models.CharField(max_length=20, choices=ORDER_STATUS_CHOICES, default='Created')
     payment_method = models.CharField(max_length=20)
@@ -74,7 +74,7 @@ class Order(models.Model):
     is_paid = models.BooleanField(default=False)
     
     def __str__(self):
-        return f"Order #{self.id} - {self.customer.user.username}"
+        return f"Order #{self.id} - {self.customer.username}"
     
     def calculate_totals(self):
         self.total_price = sum(item.get_total_price() for item in self.items.all())

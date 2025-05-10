@@ -1,8 +1,8 @@
 from django.db import models
-from account.models import VendorProfile
+from account.models import VendorUser
 
 class Restaurant(models.Model):
-    owner = models.ForeignKey(VendorProfile, on_delete=models.CASCADE, related_name='restaurants')
+    owner = models.ForeignKey(VendorUser, on_delete=models.CASCADE, related_name='restaurants')
     name = models.CharField(max_length=255)
     address = models.CharField(max_length=255)
     city = models.CharField(max_length=100)
