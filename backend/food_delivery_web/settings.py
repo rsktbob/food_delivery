@@ -65,6 +65,11 @@ MIDDLEWARE = [
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",  # React開發服務器
 ]
+
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:5173",
+]
+
 CORS_ALLOW_CREDENTIALS = True
 
 AUTH_USER_MODEL = 'account.BaseUser'

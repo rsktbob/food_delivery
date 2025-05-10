@@ -23,7 +23,6 @@ function App() {
   return (
     <div className="app-container">
       <header className="app-header">
-        <h1>{message}</h1>
         <div className="user-info">
           <span>歡迎, {user.username} ({user.user_type})</span>
           <button onClick={handleLogout}>登出</button>
@@ -35,7 +34,7 @@ function App() {
           <div className="customer-dashboard">
             <h2>顧客主頁</h2>
             <p>您的地址: {user.profile?.address || '未設定'}</p>
-            {/* 這裡可以放置顧客特有的功能 */}
+            
           </div>
         )}
         
@@ -45,14 +44,14 @@ function App() {
             <p>評分: {user.profile?.rating || '0'}</p>
             <p>車輛類型: {user.profile?.vehicle_type || '未設定'}</p>
             <p>車牌號碼: {user.profile?.license_plate || '未設定'}</p>
-            {/* 這裡可以放置快遞員特有的功能 */}
+            
           </div>
         )}
         
         {user.user_type === 'vendor' && (
           <div className="vendor-dashboard">
             <h2>廠商主頁</h2>
-            {/* 這裡可以放置廠商特有的功能 */}
+            
           </div>
         )}
       </main>
