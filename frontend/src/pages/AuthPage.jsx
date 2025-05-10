@@ -38,11 +38,11 @@ const AuthPage = ({ onUserAuthenticated }) => {
         </div>
         
         <div className="auth-content">
-          {isLoginMode ? (
+          {isLoginMode ? 
             <LoginForm onLoginSuccess={handleLoginSuccess} />
-          ) : (
+           : 
             <RegisterForm onRegisterSuccess={handleRegisterSuccess} />
-          )}
+          }
         </div>
       </div>
     </div>

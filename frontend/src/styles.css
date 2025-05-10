@@ -202,3 +202,32 @@ p {
   margin-bottom: 10px;
   color: #666;
 }
+
+nav {
+  display: flex;
+  gap: 20px;
+}
+
+nav a {
+  color: #4a4a4a;
+  text-decoration: none;
+  font-weight: bold;
+  padding: 8px 12px;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+nav a:hover {
+  background-color: #eaeaea;
+  color: #4a90e2;
+}
+
+nav a.active {
+  background-color: #4a90e2;
+  color: white;
+}
+
+.navigation-container {
+  display: flex;
+  align-items: center;
+}
