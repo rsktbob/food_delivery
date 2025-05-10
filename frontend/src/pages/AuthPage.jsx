@@ -1,13 +1,9 @@
 import { useState } from 'react';
-import LoginForm from './LoginForm';
-import RegisterForm from './RegisterForm';
+import LoginForm from '../components/LoginForm';
+import RegisterForm from '../components/RegisterForm';
 
 const AuthPage = ({ onUserAuthenticated }) => {
   const [isLoginMode, setIsLoginMode] = useState(true);
-  
-  const toggleMode = () => {
-    setIsLoginMode(!isLoginMode);
-  };
   
   const handleLoginSuccess = (userData) => {
     // 將用戶信息傳遞給父組件

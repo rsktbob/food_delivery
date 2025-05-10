@@ -1,20 +1,9 @@
 import { useState, useEffect } from "react";
-import { getHelloWorld, getOrderById } from './api';
-import AuthPage from './AuthPage';
+import AuthPage from './pages/AuthPage';
 import './styles.css'; // 假設你會創建這個樣式文件
 
 function App() {
-  const [message, setMessage] = useState('');
   const [user, setUser] = useState(null);
-  
-  // 載入 Hello World 訊息
-  useEffect(() => {
-    const fetchMessage = async () => {
-      const helloMessage = await getHelloWorld();
-      setMessage(helloMessage);
-    };
-    fetchMessage();
-  }, []);
 
   const handleUserAuthenticated = (userData) => {
     setUser(userData);

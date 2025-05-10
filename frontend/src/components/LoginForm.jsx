@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { loginUser } from './api';
+import { loginUser } from '../api';
+import TextInput from './TextInput';
 
-const LoginForm = ({ onLoginSuccess }) => {
+function LoginForm({ onLoginSuccess }) {
   const [credentials, setCredentials] = useState({
     username: '',
     password: ''
@@ -43,31 +44,27 @@ const LoginForm = ({ onLoginSuccess }) => {
     <div className="login-form">
       <h2>登入</h2>
       {error && <div className="error-message">{error}</div>}
-      
+
       <form onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label htmlFor="username">用戶名</label>
-          <input
-            type="text"
-            id="username"
-            name="username"
-            value={credentials.username}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        
-        <div className="form-group">
-          <label htmlFor="password">密碼</label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            value={credentials.password}
-            onChange={handleChange}
-            required
-          />
-        </div>
+        <TextInput
+          label="用戶名"
+          id="username"
+          name="username"
+          value={credentials.username}
+          onChange={handleChange}
+          required
+        />
+
+        <TextInput
+          label="密碼"
+          id="password"
+          name="password"
+          value={credentials.password}
+          onChange={handleChange}
+          type="password"
+          required
+        />
+
         
         <button type="submit" disabled={loading}>
           {loading ? '登入中...' : '登入'}
