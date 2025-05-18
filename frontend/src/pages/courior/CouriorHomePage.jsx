@@ -1,11 +1,10 @@
-function CouriorHomePage({user}){
-    return(
-        <div className="customer-dashboard">
-            <h2>顧客主頁</h2>
-            <p>您的地址: {user?.address || '未設定'}</p>
+import CouriorOrderList from '../../components/CourierOrderList';
 
-        </div>
-    )
+function CouriorHomePage({user}){
+  // Sample order data Restaurant, distance, fee
+  return(
+    <CouriorOrderList user={user}/>
+  )
 }
 
 export default CouriorHomePage

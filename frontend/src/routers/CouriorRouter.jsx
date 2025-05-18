@@ -4,6 +4,7 @@ import CouriorHomePage from '../pages/courior/CouriorHomePage';
 import TestPage from '../pages/TestPage';
 
 function CustomerRouter({user, handleLogout}) {
+  console.log("aaa")
   return (
     <BrowserRouter>
       <div className="app-container">

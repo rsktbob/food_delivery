@@ -27,7 +27,7 @@ function App() {
       {user.user_type === 'customer' && (
           <CustomerRouter user={user} handleLogout={handleLogout}/>
       )}
-      {user.user_type === 'courior' && (
+      {user.user_type === 'courier' && (
           <CouriorRouter user={user} handleLogout={handleLogout}/>
       )}
       {user.user_type === 'vendor' && (

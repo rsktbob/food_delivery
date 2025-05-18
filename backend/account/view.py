@@ -50,7 +50,7 @@ def register_user(request):
                     username=username,
                     email=email,
                     password=password,
-                    user_type="customer",
+                    user_type="courier",
                     phone_number=phone_number,
                     vehicle_type=vehicle_type,
                     license_plate=license_plate

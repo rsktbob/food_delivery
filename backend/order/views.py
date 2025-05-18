@@ -1,117 +1,149 @@
-from django.shortcuts import render, get_object_or_404
-from django.http import JsonResponse
-from django.contrib.auth.decorators import login_required
-from django.views.decorators.http import require_POST
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.decorators import api_view
+from django.contrib.auth import authenticate, login
 from django.db import transaction
-from .models import Cart, CartItem, Order, OrderItem
-from Restaurant.models import Restaurant, MenuItem
-from account.models import CourierUser, BaseUser
-from django.utils import timezone
-import json
-from .services import *
-from .forms import OrderForm
-from django.shortcuts import redirect
+from .models import *
+def set_order_state(order_id, status):
+    try:
+        order = Order.objects.get(id=order_id)
+        order.status = status
+        order.save()
+        return True
+    except:
+        return False
 
-class OrderManageHandler:
-    CustomerOrderService = CustomerOrderService()
-    VendorOrderService = VendorOrderService()
-    CourierOrderService = CourierOrderService()
 
-    @classmethod
-    def createOrder(cls, request, restaurant_id):
-        if request.method == "GET":
-            form = OrderForm()
-            context = {"form" : form}
-            return render(request, "order/create_order.html", context)
-        elif request.method == "POST":
-            customer = request.user.customer_profile
-            restaurant = Restaurant.objects.get(id=restaurant_id)
-            cart = Cart.objects.filter(customer=customer, restaurant=restaurant).first()
-            cart_items = cart.cart_items.all()
+@api_view(['POST'])
+def courierTakeOrder(request):
+    order_id = request.data.get('order_id')
+    courier_id = request.data.get('user_id')
+    order = Order.objects.get(id=order_id)
+    courier = CourierUser.objects.get(id=courier_id)
+    response = {'success': True }
+    if order.status == "Accepted":
+        set_order_state(order_id, 'Assigned')
+        order.courier = courier
+        response['success'] = True
+    else:
+        response['success'] = False
+    print(order.courier.id)
+    return Response(response)
+
+@api_view(['GET'])
+def courierCheckOrder(request):
+    orders = Order.objects.filter(status='Accepted')
+     # 使用字典推導式構建數據
+    orders_data = [{
+        'id': order.id,
+        'customer_name': order.customer.username,
+        'restaurant': order.restaurant.name,
+        'distance': 100,
+        'fee': 100,
+    } for order in orders]
+    
+    return Response(orders_data)  # 直接返回數組
+
+# class OrderManageHandler:
+#     CustomerOrderService = CustomerOrderService()
+#     VendorOrderService = VendorOrderService()
+#     CourierOrderService = CourierOrderService()
+
+#     @classmethod
+#     def createOrder(cls, request, restaurant_id):
+#         if request.method == "GET":
+#             form = OrderForm()
+#             context = {"form" : form}
+#             return render(request, "order/create_order.html", context)
+#         elif request.method == "POST":
+#             customer = request.user.customer_profile
+#             restaurant = Restaurant.objects.get(id=restaurant_id)
+#             cart = Cart.objects.filter(customer=customer, restaurant=restaurant).first()
+#             cart_items = cart.cart_items.all()
             
-            form = OrderForm(request.POST)
-            if form.is_valid() and not cart_items:
-                order = form.save(commit=False)
+#             form = OrderForm(request.POST)
+#             if form.is_valid() and not cart_items:
+#                 order = form.save(commit=False)
                 
-                order.total_price = sum(cart_item.get_total_price() for cart_item in cart_items)
-                order.restaurant = restaurant
-                order.customer = customer
-                order.save()                
-                cart.delete()
-                print(order)
+#                 order.total_price = sum(cart_item.get_total_price() for cart_item in cart_items)
+#                 order.restaurant = restaurant
+#                 order.customer = customer
+#                 order.save()                
+#                 cart.delete()
+#                 print(order)
                 
-                return redirect("home")
-            else:
-                form = OrderForm()
-                context = {"form" : form}
-                return render(request, "order/create_order.html", context)
+#                 return redirect("home")
+#             else:
+#                 form = OrderForm()
+#                 context = {"form" : form}
+#                 return render(request, "order/create_order.html", context)
   
-    @classmethod
-    def setOrderState(cls, request):
-        order_id = request.POST.get('order_id')  # 假設訂單 ID 傳遞過來
-        state = request.POST.get('state')  # 新的訂單狀態
+#     @classmethod
+#     def setOrderState(cls, request):
+#         order_id = request.POST.get('order_id')  # 假設訂單 ID 傳遞過來
+#         state = request.POST.get('state')  # 新的訂單狀態
         
-        success = cls.CustomerOrderService.set_order_state(order_id, state)
-        if success:
-            return JsonResponse({'status': 'success', 'message': 'Order state updated successfully!'})
-        else:
-            return JsonResponse({'status': 'error', 'message': 'Failed to update order state.'}, status=400)
+#         success = cls.CustomerOrderService.set_order_state(order_id, state)
+#         if success:
+#             return JsonResponse({'status': 'success', 'message': 'Order state updated successfully!'})
+#         else:
+#             return JsonResponse({'status': 'error', 'message': 'Failed to update order state.'}, status=400)
         
     
-    @classmethod
-    def getOrderState(cls, request):
-        # 從 POST 請求中獲取訂單 ID
-        order_id = request.POST.get('order_id')
+#     @classmethod
+#     def getOrderState(cls, request):
+#         # 從 POST 請求中獲取訂單 ID
+#         order_id = request.POST.get('order_id')
         
-        order_state = cls.CustomerOrderService.get_order_state(order_id)
-        if order_state is not None:
-            return JsonResponse({'status': 'success', 'order_state': order_state})
-        else:
-            return JsonResponse({'status': 'error', 'message': 'Order not found.'}, status=404)
+#         order_state = cls.CustomerOrderService.get_order_state(order_id)
+#         if order_state is not None:
+#             return JsonResponse({'status': 'success', 'order_state': order_state})
+#         else:
+#             return JsonResponse({'status': 'error', 'message': 'Order not found.'}, status=404)
         
       
-    def checkCourierOrder(cls, request):
-        nearby_orders = cls.CourierOrderService.search_nearby_order()
-        if nearby_orders:
-            return JsonResponse({'status': 'success', 'nearby_orders': nearby_orders})
-        else:
-            return JsonResponse({'status': 'info', 'message': 'No nearby orders found.'})
+#     def checkCourierOrder(cls, request):
+#         nearby_orders = cls.CourierOrderService.search_nearby_order()
+#         if nearby_orders:
+#             return JsonResponse({'status': 'success', 'nearby_orders': nearby_orders})
+#         else:
+#             return JsonResponse({'status': 'info', 'message': 'No nearby orders found.'})
 
-    @classmethod
-    def checkVendorOrder(cls, request):
-        restaurant_id = request.POST.get('restaurant_id')
+#     @classmethod
+#     def checkVendorOrder(cls, request):
+#         restaurant_id = request.POST.get('restaurant_id')
         
-        orders = cls.VendorOrderService.get_restaurant_orders(restaurant_id)
-        if orders:
-            return JsonResponse({'status': 'success', 'orders': orders})
-        else:
-            return JsonResponse({'status': 'info', 'message': 'No orders found for this restaurant.'})
+#         orders = cls.VendorOrderService.get_restaurant_orders(restaurant_id)
+#         if orders:
+#             return JsonResponse({'status': 'success', 'orders': orders})
+#         else:
+#             return JsonResponse({'status': 'info', 'message': 'No orders found for this restaurant.'})
 
-    @classmethod
-    def acceptVendorOrder(cls, request):
-        order_id = request.POST.get('order_id')
-        success = cls.VendorOrderService.accept_restaurant_order(order_id)
-        if success:
-            return JsonResponse({'status': 'success', 'message': 'Order accepted successfully.'})
-        else:
-            return JsonResponse({'status': 'error', 'message': 'Failed to accept the order.'})
+#     @classmethod
+#     def acceptVendorOrder(cls, request):
+#         order_id = request.POST.get('order_id')
+#         success = cls.VendorOrderService.accept_restaurant_order(order_id)
+#         if success:
+#             return JsonResponse({'status': 'success', 'message': 'Order accepted successfully.'})
+#         else:
+#             return JsonResponse({'status': 'error', 'message': 'Failed to accept the order.'})
 
-    @classmethod
-    # vendor finish order
-    def finishOrder(cls, request):
-        success = cls.VendorOrderService.finish_restaurant_order(request)
-        if success:
-            return JsonResponse({'status': 'success', 'message': 'Order finished successfully.'})
-        else:
-            return JsonResponse({'status': 'error', 'message': 'Failed to finish the order.'})
+#     @classmethod
+#     # vendor finish order
+#     def finishOrder(cls, request):
+#         success = cls.VendorOrderService.finish_restaurant_order(request)
+#         if success:
+#             return JsonResponse({'status': 'success', 'message': 'Order finished successfully.'})
+#         else:
+#             return JsonResponse({'status': 'error', 'message': 'Failed to finish the order.'})
         
-    @classmethod
-    def enterOrderManagePage(cls, request):
-        customer = request.user
+#     @classmethod
+#     def enterOrderManagePage(cls, request):
+#         customer = request.user
         
-        orders = Order.objects.filter(customer=customer)
-        context = {"orders" : orders}
-        return render(request, "order/order_mange_page.html", context)
+#         orders = Order.objects.filter(customer=customer)
+#         context = {"orders" : orders}
+#         return render(request, "order/order_mange_page.html", context)
 
 # @login_required
 # def add_to_shopping_cart(request):

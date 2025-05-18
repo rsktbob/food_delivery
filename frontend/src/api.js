@@ -61,3 +61,35 @@ export const loginUser = async (credentials) => {
 
   return response.json();
 }
+
+export const CourierCheckOrders = async () => {
+  const API_URL = 'http://localhost:8000/api/courier-check-orders/';
+  const csrfToken = getCSRFToken();
+  const response = await fetch(API_URL, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': csrfToken,
+    },
+    credentials: 'include',
+  });
+
+  return await response.json();
+};
+
+export const CourierTakeOrders = async (id,user_id) => {
+  console.log(user_id)
+  const API_URL = 'http://localhost:8000/api/courier-take-orders/';
+  const csrfToken = getCSRFToken();
+  const response = await fetch(API_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': csrfToken,
+    },
+    body: JSON.stringify({ "order_id": id , "user_id": user_id}),
+    credentials: 'include',
+  });
+
+  return await response.json();
+};
