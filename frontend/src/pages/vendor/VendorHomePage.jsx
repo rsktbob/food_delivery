@@ -1,10 +1,34 @@
-function VendorHomePage({user}){
-    return(
-        <div className="customer-dashboard">
-            <h2>顧客主頁</h2>
-            <p>您的地址: {user?.address || '未設定'}</p>
+import RestaurantInfo from "../../components/RestaurantInfo"
+import { useState, useEffect } from "react"
+import {fetchRestaurantInfo} from "../../api";
 
-        </div>
+function VendorHomePage({user}){
+    const [restaurantInfo, setRestaurantInfo] = useState({
+        name: '',
+        address: '',
+        image_url: '',
+    });
+
+    useEffect(() => {
+        fetchRestaurantInfo()
+        .then(data => {
+            console.log(data);
+            setRestaurantInfo(data);
+        })
+        .catch(error => {
+            console.log(`error: ${error}`);
+        })
+    }, []);
+
+    return(
+    <div className="container py-5">
+      <h2 className="display-4">歡迎回來，{user.name}！</h2>
+
+      <RestaurantInfo name={restaurantInfo.name} address={restaurantInfo.address} image_url={restaurantInfo.image}/>
+      <section className="row mt-5">
+
+      </section>
+    </div>
     )
 }
 
