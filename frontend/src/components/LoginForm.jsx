@@ -23,21 +23,21 @@ function LoginForm({ onLoginSuccess }) {
     setLoading(true);
     setError('');
     
-    try {
-      const response = await loginUser(credentials);
-      
-      if (response.error) {
-        setError(response.error);
-      } else {
-        // 登入成功，通知父組件
-        onLoginSuccess(response);
-      }
-    } catch (err) {
-      setError('登入過程中發生錯誤，請稍後再試');
-      console.error('Login error:', err);
-    } finally {
-      setLoading(false);
-    }
+    loginUser(credentials)
+      .then(response => {
+        if (response.error) {
+          setError(response.error);
+        } else {
+          onLoginSuccess(response); // 登入成功，通知父組件
+        }
+      })
+      .catch(err => {
+        setError('登入過程中發生錯誤，請稍後再試');
+        console.error('Login error:', err);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   };
 
   return (

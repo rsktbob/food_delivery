@@ -5,7 +5,7 @@ class Restaurant(models.Model):
     owner = models.ForeignKey(VendorUser, on_delete=models.CASCADE, related_name='restaurants')
     name = models.CharField(max_length=255)
     address = models.CharField(max_length=255)
-    city = models.CharField(max_length=100)
+    city = models.CharField(max_length=100, blank=True)
     phone_number = models.CharField(max_length=15)
     rating = models.FloatField(default=0)
     total_ratings = models.IntegerField(default=0)
@@ -32,6 +32,8 @@ class MenuItem(models.Model):
     
     def __str__(self):
         return f"{self.name} - {self.restaurant.name}"
+    
+
 
 
 # class CustomizationOption(models.Model):

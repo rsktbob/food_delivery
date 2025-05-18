@@ -9,34 +9,27 @@ const getCSRFToken = () => {
   return null;
 };
 
-// 保留原有功能
-export const getHelloWorld = async () => {
-  const API_URL = 'http://localhost:8000/hello/';
-  const response = await fetch(API_URL);
-  const data = await response.json();
-  return data.message;
-};
 
-export const getOrderById = async (orderId) => {
-  const API_URL = 'http://localhost:8000/order';
-  const response = await fetch(`${API_URL}/${orderId}/`);
-  const data = await response.json();
-
-  return data;
-};
+const API_BASE_URL = 'http://localhost:8000/api';
 
 // 添加登入/註冊功能
 export const registerUser = async (userData) => {
-  const API_URL = 'http://localhost:8000/api/register/';
+  const API_URL = `${API_BASE_URL}/register/`;
   const csrfToken = getCSRFToken();
+  
+  const formData = new FormData();
+
+  // 添加所有字段到 formData
+  Object.keys(userData).forEach(key => {
+    formData.append(key, userData[key]);
+  });
 
   const response = await fetch(API_URL, {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json',
       'X-CSRFToken': csrfToken,
     },
-    body: JSON.stringify(userData),
+    body: formData,
     credentials: 'include',  // 包含 cookies
   });
 
@@ -44,9 +37,7 @@ export const registerUser = async (userData) => {
 };
 
 export const loginUser = async (credentials) => {
-  const API_URL = 'http://localhost:8000/api/login/';
-
-
+  const API_URL = `${API_BASE_URL}/login/`;
   const csrfToken = getCSRFToken();
 
   const response = await fetch(API_URL, {
@@ -60,4 +51,52 @@ export const loginUser = async (credentials) => {
   });
 
   return response.json();
+}
+
+export const fetchRestaurantInfo = async () => {
+  const API_URL = `${API_BASE_URL}/restaurant/`;
+  
+  const response = await fetch(API_URL, {
+    method: 'GET',
+    credentials: 'include',
+  });
+
+  return response.json();
+}
+
+export const fetchMenuItems = async () => {
+  const API_URL = `${API_BASE_URL}/menu_items/`
+
+  const response = await fetch(API_URL, {
+    method: 'GET',
+    credentials: 'include'
+  });
+  
+  if (!response.ok) {
+    throw new Error('獲取菜單項目失敗');
+  }
+  
+  return response.json();
+}
+
+
+export const AddMenuItem = async () => {
+  const API_URL = `${API_BASE_URL}/menu_items/add`
+  const csrfToken = getCSRFToken()
+
+  
+  const response = await fetch(API_URL, {
+    method: 'POST',
+    headers: {
+      'X-CSRFtoken': csrfToken,
+    },
+    body: {
+
+    },
+    credentials: 'include'
+  })
+
+  if (!response.ok) {
+    throw new Error("新增餐點失敗")
+  }
 }

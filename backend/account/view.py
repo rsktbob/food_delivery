@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from django.contrib.auth import authenticate, login
 from django.db import transaction
+from Restaurant.models import Restaurant
 from .models import *
 
 @api_view(['POST'])
@@ -12,7 +13,7 @@ def register_user(request):
     password = request.data.get('password')
     email = request.data.get('email')
     phone_number = request.data.get('phone_number', '')
-    
+
     # 基本驗證
     if not username or not password or not email or not user_type:
         return Response(
@@ -57,13 +58,28 @@ def register_user(request):
                 )
 
             elif user_type == 'vendor':
-                VendorUser.objects.create_user(
+                restaurant_name = request.data.get('restaurant_name', '')
+                restaurant_image = request.data.get('restaurant_image', None)
+                restaurant_address = request.data.get('restaurant_address', None)
+                restaurant_phone_number = request.data.get('restaurant_phone_number', None)                
+
+                user = VendorUser.objects.create_user(
                     username=username,
                     email=email,
                     password=password,
                     user_type="vendor",
                     phone_number=phone_number
                 )
+
+                Restaurant.objects.create(
+                    owner=user,
+                    name=restaurant_name,
+                    address=restaurant_address,
+                    phone_number=restaurant_phone_number,
+                    image=restaurant_image
+                )
+
+                
             
         return Response(
             {'success': '用戶註冊成功'},
@@ -79,7 +95,7 @@ def register_user(request):
 def login_user(request):
     username = request.data.get('username')
     password = request.data.get('password')
-    
+
     if not username or not password:
         return Response(
             {'error': '請提供用戶名和密碼'},
@@ -100,15 +116,14 @@ def login_user(request):
             'phone_number': user.phone_number
         }
         
-        print(isinstance(user, CustomerUser))
         # 根據用戶類型添加額外資訊
-        if isinstance(user, CustomerUser):
+        if user.user_type == 'cusomter':
             user_data['address'] = user.address
-        elif isinstance(user, CourierUser):
+        elif user.user_type == 'courier':
             user_data['rating'] = user.rating
             user_data['vehicle_type'] = user.vehicle_type
             user_data['license_plate'] = user.license_plate
-        elif isinstance(user, VendorUser):
+        elif user.user_type == 'vendor':
             pass
         
         return Response(user_data)

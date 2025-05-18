@@ -9,6 +9,10 @@ from .models import Restaurant
 from .forms import *
 from order.models import CartItem, Cart
 from django.http import HttpResponse
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.decorators import api_view
+from .serializer import MenuItemSerializer,RestaurantSerializer
 
 # def calculate_distance(lat1, lon1, lat2, lon2):
 #     # Haversine formula to calculate distance between two points
@@ -162,4 +166,30 @@ class RestaurantManegHandler:
         carts = Cart.objects.filter(customer=customer)
         context = {"carts" : carts}
         return render(request, "Restaurant/shopping_cart.html", context)
+    
 
+@api_view(['GET'])
+def get_restaurant_info(request):
+    user = request.user
+    
+    try:
+        restaurant = Restaurant.objects.get(owner=user)
+        serializer = RestaurantSerializer(restaurant,  context={'request': request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
+        
+    except Restaurant.DoesNotExist:
+        return Response(
+            {'error': '找不到該用戶的餐廳'}, 
+            status=status.HTTP_404_NOT_FOUND
+        )
+    except Exception as e:
+        return Response(
+            {'error': f'服務器錯誤: {str(e)}'},
+            status=status.HTTP_500_INTERNAL_SERVER_ERRORP
+        )
+    
+@api_view(['GET'])
+def get_menu_items(request):
+    items = MenuItem.objects.all()
+    serializer = MenuItemSerializer(items, many=True, context={'request': request})
+    return Response(serializer.data)
