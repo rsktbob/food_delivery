@@ -7,7 +7,6 @@ import './styles.css';
 
 function App() {
   const [user, setUser] = useState(null);
-
   // 當組件初始化時，檢查是否有存儲在 localStorage 中的用戶資料
   useEffect(() => {
     const savedUser = localStorage.getItem("user");
@@ -32,12 +31,12 @@ function App() {
   if (!user) {
     return <AuthPage onUserAuthenticated={handleLogin} />;
   }
-
+  
   // 用戶已登入後的內容
   return (
     <>
       {user.user_type === 'customer' && <CustomerRouter user={user} handleLogout={handleLogout}/>}
-      {user.user_type === 'courior' && <CouriorRouter user={user} handleLogout={handleLogout}/>}
+      {user.user_type === 'courier' && <CouriorRouter user={user} handleLogout={handleLogout}/>}
       {user.user_type === 'vendor' && <VendorRouter user={user} handleLogout={handleLogout}/>}
     </>
   );

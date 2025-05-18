@@ -117,12 +117,14 @@ def login_user(request):
         }
         
         # 根據用戶類型添加額外資訊
-        if user.user_type == 'cusomter':
-            user_data['address'] = user.address
+        if user.user_type == 'customer':
+            customer = CustomerUser.objects.get(id=user.id)
+            user_data['address'] = customer.address
         elif user.user_type == 'courier':
-            user_data['rating'] = user.rating
-            user_data['vehicle_type'] = user.vehicle_type
-            user_data['license_plate'] = user.license_plate
+            courier = CourierUser.objects.get(id=user.id)
+            user_data['rating'] = courier.rating
+            user_data['vehicle_type'] = courier.vehicle_type
+            user_data['license_plate'] = courier.license_plate
         elif user.user_type == 'vendor':
             pass
         
