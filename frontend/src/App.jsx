@@ -4,6 +4,7 @@ import CustomerRouter from "./routers/CustomerRouter";
 import CouriorRouter from "./routers/CouriorRouter";
 import VendorRouter from "./routers/VendorRouter";
 import './styles.css';
+import { useNavigate } from 'react-router-dom';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -15,14 +16,19 @@ function App() {
     }
   }, []);
 
+  const navigate = useNavigate();
+
   const handleLogin = (userData) => {
     setUser(userData);
     localStorage.setItem("user", JSON.stringify(userData));
+    console.log(userData);
+    navigate('/');
     console.log('用戶已登入:', userData);
   };
 
   const handleLogout = () => {
     setUser(null);
+    navigate('/');
     localStorage.removeItem("user");
   };
 

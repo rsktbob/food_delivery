@@ -84,8 +84,9 @@ export const CourierTakeOrders = async (id,user_id) => {
 
   return await response.json();
 };
-export const fetchRestaurantInfo = async () => {
-  const API_URL = `${API_BASE_URL}/restaurant/`;
+
+export const fetchRestaurant = async (restaurantId) => {
+  const API_URL = `${API_BASE_URL}/restaurants/${restaurantId}`;
   
   const response = await fetch(API_URL, {
     method: 'GET',
@@ -94,9 +95,9 @@ export const fetchRestaurantInfo = async () => {
 
   return response.json();
 }
-
-export const fetchMenuItems = async () => {
-  const API_URL = `${API_BASE_URL}/menu_items/`
+ 
+export const fetchFoodItems = async (restaurantId) => {
+  const API_URL = `${API_BASE_URL}/restaurants/${restaurantId}/food_items/`
 
   const response = await fetch(API_URL, {
     method: 'GET',
@@ -110,24 +111,142 @@ export const fetchMenuItems = async () => {
   return response.json();
 }
 
+export const fetchCartItems = async () => {
+  const API_URL = `${API_BASE_URL}/cart_items`;
 
-export const AddMenuItem = async () => {
-  const API_URL = `${API_BASE_URL}/menu_items/add`
-  const csrfToken = getCSRFToken()
+  const response = await fetch(API_URL, {
+    method: 'GET',
+    credentials: 'include'
+  });
 
-  
+  if (!response.ok) {
+    throw new Error('獲取購物車項目失敗');
+  }
+
+  return response.json();
+}
+
+
+export const AddFoodItem = async (formData) => {
+  const API_URL = `${API_BASE_URL}/food_items/add`;
+  const csrfToken = getCSRFToken();
+
   const response = await fetch(API_URL, {
     method: 'POST',
     headers: {
-      'X-CSRFtoken': csrfToken,
+      'X-CSRFToken': csrfToken,
     },
-    body: {
+    body: formData,
+    credentials: 'include',
+  });
 
+  if (!response.ok) {
+    throw new Error('新增餐點失敗');
+  }
+
+  return await response.json();
+};
+
+export const fetchFoodCategory = async () => {
+  const API_URL = `${API_BASE_URL}/food_category`;
+  const csrfToken = getCSRFToken();
+
+  const response = await fetch(API_URL, {
+    method: 'GET',
+    headers: {
+      'X-CSRFToken': csrfToken,
     },
-    credentials: 'include'
+    credentials: 'include',
+  });
+
+  if (!response.ok) {
+    throw new Error('獲取食物類別失敗');
+  }
+
+  return await response.json();
+
+}
+
+export const deleteFoodItem = async (foodId) => {
+  const API_URL = `${API_BASE_URL}/food_items/${foodId}/delete`;
+  const csrfToken = getCSRFToken();
+  
+  const response = await fetch(API_URL, {
+    method: 'DELETE',
+    headers: {
+      'X-CSRFToken': csrfToken,
+    },
+    credentials: 'include',
   })
 
   if (!response.ok) {
-    throw new Error("新增餐點失敗")
+    throw new Error('刪除餐點失敗');
   }
+
+  return await response.json();
+}
+
+export const AddFoodItemToCart = async (restaurantId, foodId, quantity) => {
+  const API_URL = `${API_BASE_URL}/restaurants/${restaurantId}/cart/add`;
+  const csrfToken = getCSRFToken();
+
+  const response = await fetch(API_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': csrfToken,
+    },
+    credentials: 'include',
+        body: JSON.stringify({
+      food_id: foodId,
+      quantity: quantity,
+    }),
+  })
+
+  
+  if (!response.ok) {
+    throw new Error('加入到購物車失敗');
+  }
+
+  return await response.json();
+}
+
+export const deleteCartItem = async (cartItemId) => {
+  const API_URL = `${API_BASE_URL}/cart_items/${cartItemId}/delete`;
+  const csrfToken = getCSRFToken();
+  
+  const response = await fetch(API_URL, {
+    method: 'DELETE',
+    headers: {
+      'X-CSRFToken': csrfToken,
+    },
+    credentials: 'include',
+  })
+
+  if (!response.ok) {
+    throw new Error('刪除購物車中的餐點失敗');
+  }
+
+  return await response.json();
+}
+
+
+export const fetchRestaurants = async () => {
+  const API_URL = `${API_BASE_URL}/restaurants`;
+  const csrfToken = getCSRFToken();
+
+  const response = await fetch(API_URL, {
+    method: 'GET',
+    headers: {
+      'X-CSRFToken': csrfToken,
+    },
+    credentials: 'include',
+  })
+
+  
+  if (!response.ok) {
+    throw new Error('獲得餐廳失敗');
+  }
+
+  return await response.json();
 }

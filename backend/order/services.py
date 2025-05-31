@@ -7,7 +7,8 @@ from django.http import JsonResponse
 from django.forms.models import model_to_dict
 from django.core.exceptions import ObjectDoesNotExist
 
-class OrderService: 
+
+class OrderService:
     def set_order_state(self, order_id, status):
         try:
             order = Order.objects.get(id=order_id)
@@ -15,7 +16,7 @@ class OrderService:
             return True
         except:
             return False
-    
+
     def get_order_state(self, order_id) -> str:
         try:
             order = Order.objects.get(id=order_id)
@@ -23,14 +24,15 @@ class OrderService:
             return status
         except:
             return None
-    
+
 
 class CustomerOrderService(OrderService):
     def create_order(self, order_info):
         try:
             # 獲取 customer 資料
-            customer = CustomerProfile.objects.get(user_id=order_info['user_id'])
-        
+            customer = CustomerProfile.objects.get(
+                user_id=order_info['user_id'])
+
             restaurant_id = order_info['restaurant_id']
             restaurant = Restaurant.objects.get(id=restaurant_id)
 
@@ -44,20 +46,22 @@ class CustomerOrderService(OrderService):
                 total_price=order_info['total_price'],
                 delivery_fee=order_info['delivery_fee'],
             )
+
             return True
         except:
             return False
 
+
 class VendorOrderService(OrderService):
     def get_restaurant_orders(self, restaurant_id) -> List[Order]:
         return Order.objects.filter(restaurant_id=restaurant_id)
-    
+
     def accept_restaurant_order(self, order_id) -> bool:
         return self.set_order_state(order_id, 'Accepted')
 
 
 class CourierOrderService(OrderService):
-    def search_nearby_order(self) -> List[Order]: #導航先不寫
+    def search_nearby_order(self) -> List[Order]:  # 導航先不寫
         return Order.objects.filter(status='Accepted')
 
     def accept_for_delivery(self, order_id):

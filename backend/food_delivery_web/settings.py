@@ -38,6 +38,7 @@ ALLOWED_HOSTS = ['127.0.0.1',"localhost"]
 # Application definition
 
 INSTALLED_APPS = [
+    'django_extensions',
     'account.apps.AccountConfig',
     'order.apps.OrderConfig',
     'Restaurant.apps.RestaurantConfig',

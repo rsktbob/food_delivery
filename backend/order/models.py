@@ -1,6 +1,6 @@
 from django.db import models
 from account.models import CustomerUser, CourierUser, VendorUser
-from Restaurant.models import Restaurant, MenuItem
+from Restaurant.models import Restaurant, FoodItem
 
 class Cart(models.Model):
     customer = models.ForeignKey(CustomerUser, on_delete=models.CASCADE, related_name='cart')
@@ -21,20 +21,23 @@ class Cart(models.Model):
 
 class CartItem(models.Model):
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name="cart_items")
-    menu_item = models.ForeignKey(MenuItem, on_delete=models.CASCADE)
+    food_item = models.ForeignKey(FoodItem, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
     special_instructions = models.TextField(blank=True)
     
     def __str__(self):
-        return f"{self.quantity} x {self.menu_item.name}"
+        return f"{self.quantity} x {self.food_item.name}"
     
     def get_total_price(self):
-        item_price = self.menu_item.price
+        item_price = self.food_item.price
         # customizations_price = sum(c.choice.additional_price for c in self.cartitemcustomization_set.all())
         return item_price * self.quantity
     
+    class Meta:
+        unique_together = ('cart', 'food_item')  # 每位使用者對每項食物只能有一筆記錄
+
     def save(self, *args, **kwargs):
-        existing_item = CartItem.objects.filter(cart=self.cart, menu_item=self.menu_item).first()
+        existing_item = CartItem.objects.filter(cart=self.cart, food_item=self.food_item).first()
 
         if existing_item:
             CartItem.objects.filter(pk=existing_item.pk).update(
@@ -83,7 +86,7 @@ class Order(models.Model):
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')
-    menu_item = models.ForeignKey(MenuItem, on_delete=models.CASCADE)
+    menu_item = models.ForeignKey(FoodItem, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
     unit_price = models.DecimalField(max_digits=8, decimal_places=2)
     

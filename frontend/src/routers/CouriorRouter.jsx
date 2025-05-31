@@ -3,10 +3,8 @@ import HeaderBar from '../components/HeaderBar';
 import CouriorHomePage from '../pages/courior/CouriorHomePage';
 import TestPage from '../pages/TestPage';
 
-function CustomerRouter({user, handleLogout}) {
-  console.log("aaa")
+function CouriorRouter({user, handleLogout}) {
   return (
-    <BrowserRouter>
       <div className="app-container">
         <HeaderBar user={user} handleLogout={handleLogout}>
           <nav>
@@ -22,8 +20,7 @@ function CustomerRouter({user, handleLogout}) {
           </Routes>
         </main>
       </div>
-    </BrowserRouter>
   );
 }
 
-export default CustomerRouter;
+export default CouriorRouter;

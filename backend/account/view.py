@@ -126,8 +126,9 @@ def login_user(request):
             user_data['vehicle_type'] = courier.vehicle_type
             user_data['license_plate'] = courier.license_plate
         elif user.user_type == 'vendor':
-            pass
-        
+            vendor = VendorUser.objects.get(id=user.id)
+            user_data['restaurant_id'] = vendor.restaurants.first().id
+
         return Response(user_data)
     else:
         return Response(

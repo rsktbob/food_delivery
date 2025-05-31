@@ -5,7 +5,7 @@ from unittest.mock import patch, MagicMock
 
 from order.models import Order, OrderItem, Cart, CartItem
 from account.models import CustomerProfile, CourierProfile, VendorProfile
-from Restaurant.models import Restaurant, MenuItem
+from Restaurant.models import Restaurant, FoodItem
 from order.services import OrderService, CustomerOrderService, VendorOrderService, CourierOrderService
 
 User = get_user_model()
@@ -61,13 +61,13 @@ class OrderServiceTestCase(TestCase):
         )
         
         # Create menu items
-        self.menu_item1 = MenuItem.objects.create(
+        self.menu_item1 = FoodItem.objects.create(
             restaurant=self.restaurant,
             name='Test Burger',
             price=Decimal('10.99')
         )
         
-        self.menu_item2 = MenuItem.objects.create(
+        self.menu_item2 = FoodItem.objects.create(
             restaurant=self.restaurant,
             name='Test Fries',
             price=Decimal('4.99')

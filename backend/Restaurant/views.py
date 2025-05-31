@@ -12,7 +12,7 @@ from django.http import HttpResponse
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from .serializer import MenuItemSerializer,RestaurantSerializer
+from .serializer import FoodItemSerializer,RestaurantSerializer
 
 # def calculate_distance(lat1, lon1, lat2, lon2):
 #     # Haversine formula to calculate distance between two points
@@ -146,7 +146,7 @@ class RestaurantManegHandler:
     
     @classmethod
     def AddCartItem(cls, request, menu_item_id):
-        menu_item = MenuItem.objects.get(id=menu_item_id)
+        menu_item = FoodItem.objects.get(id=menu_item_id)
         restaurant = menu_item.restaurant
         customer = request.user.customer_profile
 
@@ -169,7 +169,7 @@ class RestaurantManegHandler:
     
 
 @api_view(['GET'])
-def get_restaurant_info(request):
+def get_restaurant_by_vendor(request):
     user = request.user
     
     try:
@@ -187,9 +187,70 @@ def get_restaurant_info(request):
             {'error': f'服務器錯誤: {str(e)}'},
             status=status.HTTP_500_INTERNAL_SERVER_ERRORP
         )
+
+@api_view(['GET'])
+def get_restaurant(request, restaurant_id):
+    try:
+        restaurant = Restaurant.objects.get(id=restaurant_id)
+        serializer = RestaurantSerializer(restaurant,  context={'request': request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
+        
+    except Restaurant.DoesNotExist:
+        return Response(
+            {'error': '找不到該用戶的餐廳'}, 
+            status=status.HTTP_404_NOT_FOUND
+        )
+    except Exception as e:
+        return Response(
+            {'error': f'服務器錯誤: {str(e)}'},
+            status=status.HTTP_500_INTERNAL_SERVER_ERRORP
+        )
+
     
 @api_view(['GET'])
-def get_menu_items(request):
-    items = MenuItem.objects.all()
-    serializer = MenuItemSerializer(items, many=True, context={'request': request})
+def get_restaurants(request):
+    restaurants = Restaurant.objects.all()
+    serializer = RestaurantSerializer(restaurants, many=True, context={'request': request})
+    print(serializer.data)
     return Response(serializer.data)
+
+
+@api_view(['GET'])
+def get_food_items(request, restaurant_id):
+    items = FoodItem.objects.filter(restaurant_id=restaurant_id)
+    serializer = FoodItemSerializer(items, many=True, context={'request': request})
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+def get_food_category(request):
+    items = FoodCategory.objects.values('id', 'name')  # QuerySet of dicts
+    items_list = list(items)  # 轉成純 Python list
+    return Response(items_list)
+
+@api_view(['POST'])
+def add_food_item(request):
+    name = request.data.get('name')
+    price = request.data.get('price')
+    category_id = request.data.get('category')
+    restaurant_id = request.data.get('restaurant')
+    image = request.FILES.get('image')
+
+
+    if not all([name, price, category_id, restaurant_id, image]):
+        return Response({"error": "所有欄位皆為必填"}, status=status.HTTP_400_BAD_REQUEST)
+
+    # 加入保存資料邏輯，例如：
+    FoodItem.objects.create(
+         name=name, price=price, category_id=category_id,
+         restaurant_id=restaurant_id, image=image
+     )
+
+    return Response({"message": "餐點新增成功"}, status=status.HTTP_201_CREATED)
+
+
+@api_view(['DELETE'])
+def delete_food_item(request, food_id):
+    food = FoodItem.objects.get(id=food_id)
+    food.delete()
+    return Response({"message": "餐點刪除成功"}, status=status.HTTP_201_CREATED)

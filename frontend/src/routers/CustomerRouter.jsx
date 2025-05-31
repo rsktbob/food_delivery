@@ -2,26 +2,29 @@ import { BrowserRouter, Routes, Route, NavLink  } from "react-router-dom";
 import HeaderBar from '../components/HeaderBar';
 import CustomerHomePage from '../pages/customer/CustomerHomePage';
 import TestPage from '../pages/TestPage';
+import RestaurantDetailPage from "../pages/customer/RestaurantDetailPage";
+import CartPage from "../pages/customer/CartPage";
 
 function CustomerRouter({user, handleLogout}) {
   return (
-    <BrowserRouter>
-      <div className="app-container">
-        <HeaderBar user={user} handleLogout={handleLogout}>
-          <nav>
-            <NavLink to="/" className={({ isActive }) => isActive ? "active" : ""}>首頁</NavLink>
-            <NavLink to="/test" className={({ isActive }) => isActive ? "active" : ""}>測試頁面</NavLink>
-          </nav>
-        </HeaderBar>
-        
-        <main>
-          <Routes>
-            <Route path="/" element={<CustomerHomePage user={user} />} />
-            <Route path="/test" element={<TestPage user={user} />} />
-          </Routes>
-        </main>
-      </div>
-    </BrowserRouter>
+    <div className="app-container">
+      <HeaderBar user={user} handleLogout={handleLogout}>
+        <nav>
+          <NavLink to="/" className={({ isActive }) => isActive ? "active" : ""}>首頁</NavLink>
+          <NavLink to={`/cart`} className={({ isActive }) => isActive ? "active" : ""}>
+            <i className="bi bi-cart-plus-fill me-1"></i>
+          </NavLink>
+        </nav>
+      </HeaderBar>
+      
+      <main>
+        <Routes>
+          <Route path="/" element={<CustomerHomePage user={user} />} />
+          <Route path="/restaurants/:id" element={<RestaurantDetailPage />} />
+          <Route path="/cart" element={<CartPage />} />
+        </Routes>
+      </main>
+    </div>
   );
 }
 

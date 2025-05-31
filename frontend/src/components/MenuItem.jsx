@@ -1,4 +1,4 @@
-function MenuItem({ food }) {
+function MenuItem({ food, onDelete }) {
   return (
     <div className="card">
       {food.name && (
@@ -21,7 +21,7 @@ function MenuItem({ food }) {
           </button>
           <button
             className="btn btn-danger"
-            onClick={() => {/* 刪除函數 */ }}
+            onClick={() => onDelete(food.id)}
           >
             刪除
           </button>

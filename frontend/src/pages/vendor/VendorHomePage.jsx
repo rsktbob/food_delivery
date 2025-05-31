@@ -1,19 +1,18 @@
 import RestaurantInfo from "../../components/RestaurantInfo"
 import { useState, useEffect } from "react"
-import {fetchRestaurantInfo} from "../../api";
+import {fetchRestaurant} from "../../api";
 
 function VendorHomePage({user}){
-    const [restaurantInfo, setRestaurantInfo] = useState({
+    const [restaurant, setRestaurant] = useState({
         name: '',
         address: '',
-        image_url: '',
+        image: '',
     });
 
     useEffect(() => {
-        fetchRestaurantInfo()
+        fetchRestaurant(user.restaurant_id)
         .then(data => {
-            console.log(data);
-            setRestaurantInfo(data);
+            setRestaurant(data);
         })
         .catch(error => {
             console.log(`error: ${error}`);
@@ -24,9 +23,8 @@ function VendorHomePage({user}){
     <div className="container py-5">
       <h2 className="display-4">歡迎回來，{user.name}！</h2>
 
-      <RestaurantInfo name={restaurantInfo.name} address={restaurantInfo.address} image_url={restaurantInfo.image}/>
+      <RestaurantInfo restaurant={restaurant}/>
       <section className="row mt-5">
-
       </section>
     </div>
     )

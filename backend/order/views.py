@@ -4,6 +4,8 @@ from rest_framework.decorators import api_view
 from django.contrib.auth import authenticate, login
 from django.db import transaction
 from .models import *
+from .serializer import CartItemSerializer
+
 def set_order_state(order_id, status):
     try:
         order = Order.objects.get(id=order_id)
@@ -43,6 +45,58 @@ def courierCheckOrder(request):
     } for order in orders]
     
     return Response(orders_data)  # 直接返回數組
+
+
+@api_view(['POST'])
+def add_to_cart(request, restaurant_id):
+    user = request.user
+    customer = CustomerUser.objects.get(id=user.id)
+    restaurant = Restaurant.objects.get(id=restaurant_id)
+    food_id = request.data.get('food_id')
+    quantity = request.data.get('quantity', 1)
+
+    if not food_id or quantity <= 0:
+        return Response({'error': '資料不正確'}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        food_item = FoodItem.objects.get(id=food_id)
+    except FoodItem.DoesNotExist:
+        return Response({'error': '找不到該食物'}, status=status.HTTP_404_NOT_FOUND)
+
+    cart, created = Cart.objects.get_or_create(customer=customer, restaurant=restaurant)
+    Cart.objects.exclude(customer=customer, restaurant=restaurant).delete()
+
+    # 檢查是否已經存在購物車項目
+    cart_item, created = CartItem.objects.get_or_create(
+        cart=cart,
+        food_item=food_item,
+        quantity=quantity
+    )
+
+    if not created:
+        cart_item.quantity += quantity
+        cart_item.save()
+
+    return Response({'message': "加入到購物車成功"}, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+def get_cart_items(request):
+    user = request.user
+    customer = CustomerUser.objects.get(id=user.id)
+
+    cart = Cart.objects.filter(customer=customer).first()
+    cart_items = [] if cart is None else cart.cart_items.all()
+    serializer = CartItemSerializer(cart_items, many=True, context={'request': request})
+    
+    return Response(serializer.data)
+    
+    
+@api_view(['DELETE'])
+def delete_cart_items(request, cart_item_id):
+    cart_item = CartItem.objects.get(id=cart_item_id)
+    cart_item.delete()
+
+    return Response({"message": "餐點成功刪除"}, status=status.HTTP_200_OK)    
 
 # class OrderManageHandler:
 #     CustomerOrderService = CustomerOrderService()
