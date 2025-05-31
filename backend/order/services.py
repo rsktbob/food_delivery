@@ -30,9 +30,8 @@ class CustomerOrderService(OrderService):
     def create_order(self, order_info):
         try:
             # 獲取 customer 資料
-            customer = CustomerProfile.objects.get(
-                user_id=order_info['user_id'])
-
+            customer = CustomerUser.objects.get(user_id=order_info['user_id'])
+        
             restaurant_id = order_info['restaurant_id']
             restaurant = Restaurant.objects.get(id=restaurant_id)
 

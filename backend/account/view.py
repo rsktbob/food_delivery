@@ -135,3 +135,17 @@ def login_user(request):
             {'error': '用戶名或密碼錯誤'},
             status=status.HTTP_401_UNAUTHORIZED
         )
+    
+@api_view(['POST'])
+def CourierUpdatePos(request):
+    user_id = request.data.get('user_id')
+    
+    pos = request.data.get('pos')
+    lat = pos.get('lat')
+    lng = pos.get('lng')
+
+    courier = CourierUser.objects.get(id=user_id)
+    courier.latitude = lat
+    courier.longitude = lng
+    courier.save()
+    return Response(status=status.HTTP_200_OK)
