@@ -5,6 +5,8 @@ class Restaurant(models.Model):
     owner = models.ForeignKey(VendorUser, on_delete=models.CASCADE, related_name='restaurants')
     name = models.CharField(max_length=255)
     address = models.CharField(max_length=255)
+    latitude = models.FloatField(null=True, blank=True)
+    longitude = models.FloatField(null=True, blank=True)
     city = models.CharField(max_length=100)
     phone_number = models.CharField(max_length=15)
     rating = models.FloatField(default=0)

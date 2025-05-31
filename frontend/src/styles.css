@@ -146,7 +146,7 @@ button[type="submit"]:disabled {
 
 /* 登入後的應用程式樣式 */
 .app-container {
-  max-width: 1200px;
+  max-width: none   ;
   margin: 0 auto;
   padding: 20px;
 }

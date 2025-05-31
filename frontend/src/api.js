@@ -62,6 +62,22 @@ export const loginUser = async (credentials) => {
   return response.json();
 }
 
+export const CourierTakeOrders = async (id,user_id) => {
+  const API_URL = 'http://localhost:8000/api/courier-take-orders/';
+  const csrfToken = getCSRFToken();
+  const response = await fetch(API_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': csrfToken,
+    },
+    body: JSON.stringify({ "order_id": id , "user_id": user_id}),
+    credentials: 'include',
+  });
+
+  return await response.json();
+};
+
 export const CourierCheckOrders = async () => {
   const API_URL = 'http://localhost:8000/api/courier-check-orders/';
   const csrfToken = getCSRFToken();
@@ -77,9 +93,8 @@ export const CourierCheckOrders = async () => {
   return await response.json();
 };
 
-export const CourierTakeOrders = async (id,user_id) => {
-  console.log(user_id)
-  const API_URL = 'http://localhost:8000/api/courier-take-orders/';
+export const CourierPickUpMeals = async (id) => {
+  const API_URL = 'http://localhost:8000/api/courier-pick-up-meals/';
   const csrfToken = getCSRFToken();
   const response = await fetch(API_URL, {
     method: 'POST',
@@ -87,9 +102,44 @@ export const CourierTakeOrders = async (id,user_id) => {
       'Content-Type': 'application/json',
       'X-CSRFToken': csrfToken,
     },
-    body: JSON.stringify({ "order_id": id , "user_id": user_id}),
+    body: JSON.stringify({ "order_id": id }),
     credentials: 'include',
   });
 
-  return await response.json();
+};
+
+export const CourierFinishOrders = async (id) => {
+  const API_URL = 'http://localhost:8000/api/courier-finish-orders/';
+  const csrfToken = getCSRFToken();
+  const response = await fetch(API_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': csrfToken,
+    },
+    body: JSON.stringify({ "order_id": id}),
+    credentials: 'include',
+  });
+
+};
+
+export const CourierUpdatePos = async (user_id, lat, lng) => {
+  const API_URL = 'http://localhost:8000/api/courier-update-pos/';
+  const csrfToken = getCSRFToken();
+  const response = await fetch(API_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': csrfToken,
+    },
+    body: JSON.stringify({ 
+      "user_id": user_id ,
+      "pos":{
+        "lat":lat,
+        "lng":lng
+      }
+    }),
+    credentials: 'include',
+  });
+
 };

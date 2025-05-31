@@ -18,7 +18,9 @@ class CourierUser(BaseUser):
     total_ratings = models.IntegerField(default=0)
     vehicle_type = models.CharField(max_length=20, blank=True)
     license_plate = models.CharField(max_length=20, blank=True)
-
+    latitude = models.FloatField(null=True, blank=True)
+    longitude = models.FloatField(null=True, blank=True)
+    
     def __str__(self):
         return f"Courier: {self.username}"
 
