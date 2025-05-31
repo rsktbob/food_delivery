@@ -87,7 +87,7 @@ export const CourierCheckOrders = async () => {
 export const CourierPickUpMeals = async (id) => {
   const API_URL = 'http://localhost:8000/api/courier-pick-up-meals/';
   const csrfToken = getCSRFToken();
-  const response = await fetch(API_URL, {
+  fetch(API_URL, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -102,7 +102,7 @@ export const CourierPickUpMeals = async (id) => {
 export const CourierFinishOrders = async (id) => {
   const API_URL = 'http://localhost:8000/api/courier-finish-orders/';
   const csrfToken = getCSRFToken();
-  const response = await fetch(API_URL, {
+  fetch(API_URL, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -117,7 +117,7 @@ export const CourierFinishOrders = async (id) => {
 export const CourierUpdatePos = async (user_id, lat, lng) => {
   const API_URL = 'http://localhost:8000/api/courier-update-pos/';
   const csrfToken = getCSRFToken();
-  const response = await fetch(API_URL, {
+  fetch(API_URL, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -133,7 +133,6 @@ export const CourierUpdatePos = async (user_id, lat, lng) => {
     credentials: 'include',
   });
 
-  return await response.json();
 };
 
 export const fetchRestaurant = async (restaurantId) => {
