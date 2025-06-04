@@ -4,6 +4,9 @@ import CustomerHomePage from '../pages/customer/CustomerHomePage';
 import TestPage from '../pages/TestPage';
 import RestaurantDetailPage from "../pages/customer/RestaurantDetailPage";
 import CartPage from "../pages/customer/CartPage";
+import OrderForm from "../pages/customer/OrderForm";
+import TrackOrder from "../pages/customer/TrackOrder";
+
 
 function CustomerRouter({user, handleLogout}) {
   return (
@@ -22,6 +25,8 @@ function CustomerRouter({user, handleLogout}) {
           <Route path="/" element={<CustomerHomePage user={user} />} />
           <Route path="/restaurants/:id" element={<RestaurantDetailPage />} />
           <Route path="/cart" element={<CartPage />} />
+          <Route path="/order" element={<OrderForm user={user} />} />
+          <Route path="/map" element={<TrackOrder user={user} />} />
         </Routes>
       </main>
     </div>

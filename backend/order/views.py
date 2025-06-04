@@ -4,7 +4,7 @@ from rest_framework.decorators import api_view
 from django.contrib.auth import authenticate, login
 from django.db import transaction
 from .models import *
-from .serializer import CartItemSerializer
+from .serializer import CartItemSerializer,OrderSerializer
 
 def set_order_state(order, status):
     try:
@@ -122,4 +122,52 @@ def courierFinishOrder(request):
     order = Order.objects.get(id=order_id)  
     if order.status == "Picked_Up":
         set_order_state(order, 'Finish')
+    return Response(status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+def createOrders(request):
+    user = request.user
+    cart = Cart.objects.get(customer_id=user.id)
+    pos = request.data.get('pos')
+    lat = pos.get('lat')
+    lng = pos.get('lng')
+    address = request.data.get('address')
+    payment = request.data.get('payment')
+
+    order = Order.objects.create(
+        customer_id = user.id,
+        restaurant = cart.restaurant,
+        delivery_address = address,
+        latitude = lat,
+        longitude = lng,
+        status = 'Created',
+        payment_method = payment,
+        total_price = 100,
+        delivery_fee = 100
+    )
+
+    for item in cart.cart_items.all():
+        OrderItem.objects.create(
+            order = order,
+            menu_item = item.food_item,
+            quantity = item.quantity,
+            unit_price = item.food_item.price
+        )
+    
+    return Response(status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+def CustomerGetOrder(request):
+    user = request.user
+    order = Order.objects.filter(customer_id=user.id).exclude(status='Done').first()
+    serializer = OrderSerializer(order)
+    return Response(serializer.data)
+
+@api_view(['POST'])
+def CustomerDoneOrder(request):
+    order_id = request.data.get('order_id')
+    order = Order.objects.get(id=order_id)
+    if order.status == "Finish":
+        set_order_state(order, 'Done')
     return Response(status=status.HTTP_200_OK)

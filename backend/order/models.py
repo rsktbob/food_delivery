@@ -63,6 +63,8 @@ class Order(models.Model):
         ('Assigned', 'Assigned to Courier'),#有外送員接單
         ('Picked_Up', 'Picked Up'),#外送員拿到餐點
         ('Finish', 'Finish'),#外送員送到餐點
+        ('Done', 'Done'),#訂單完成
+        ('Reject', 'Reject')#訂單被拒絕
     )
     
     customer = models.ForeignKey(CustomerUser, on_delete=models.CASCADE, related_name='orders')

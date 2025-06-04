@@ -11,7 +11,7 @@ function CustomerHomePage({user}){
         .then(data => {
             console.log(data);
             setRestaurants(data);
-        })
+        })  
         .catch(error => {
             console.log(`error: ${error}`);
         })

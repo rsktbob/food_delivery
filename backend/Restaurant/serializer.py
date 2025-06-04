@@ -13,7 +13,7 @@ from .models import *
 class RestaurantSerializer(serializers.ModelSerializer):
     class Meta:
         model = Restaurant
-        fields = ['id', 'name', 'address', 'image']
+        fields = ['id', 'name', 'address', 'image', 'latitude', 'longitude']
 
 class FoodItemSerializer(serializers.ModelSerializer):
     class Meta:

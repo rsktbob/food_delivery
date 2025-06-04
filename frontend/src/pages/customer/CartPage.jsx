@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams,useNavigate } from 'react-router-dom';
 import { deleteCartItem, fetchCartItems } from '../../api';
 import CartItem from '../../components/CartItem';
-
+import OrderForm from './OrderForm'
 function CartPage({userId}){
     const [cartItems, setCartItems] = useState([]);
     const [refresh, setRefresh] = useState(false);
@@ -27,27 +27,35 @@ function CartPage({userId}){
         .catch(err => console.log("刪除食物失敗:", err));
     }
 
+    const navigate = useNavigate();
+    const handleClick = () => {
+        navigate(`/order`);
+    };
     return(
-        <div className="container py-5">
-            <h2>我的購物車</h2>
-                <hr className="my-4" style={{ borderTop: '2px solid #333' }} />
-                {/* 顯示購物車中的餐點 */}
-                <div className="mt-4">
-                    {cartItems.length === 0 ? (
-                    <p>暫無餐點項目</p>
-                    ) : (
-                    <div className="row">
-                        {cartItems.map(item => (
-                        <div key={item.id} className="col-md-4 mb-3">
-                            <CartItem cartItem={item} onRemove={handleCartItemDelete}></CartItem>
-                        </div>
-                        ))}
+    <div className="container py-5">
+        <h2>我的購物車</h2>
+            <hr className="my-4" style={{ borderTop: '2px solid #333' }} />
+            {/* 顯示購物車中的餐點 */}
+            <div className="mt-4">
+                {cartItems.length === 0 ? (
+                <p>暫無餐點項目</p>
+                ) : (
+                <div className="row">
+                    {cartItems.map(item => (
+                    <div key={item.id} className="col-md-4 mb-3">
+                        <CartItem cartItem={item} onRemove={handleCartItemDelete}></CartItem>
                     </div>
-                    )}
+                    ))}
                 </div>
-
-        </div>
-    )
+                )}
+            </div>
+            
+            {/* 右下角按鈕 */}
+            <button className="btn btn-primary position-fixed" onClick={handleClick}>
+                結帳
+            </button>
+    </div>
+)
 }
 
 export default CartPage
