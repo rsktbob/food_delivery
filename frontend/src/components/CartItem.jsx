@@ -1,8 +1,9 @@
-function CartItem({ cartItem, onQuantityChange, onRemove }) {
-  const handleQuantityChange = (e) => {
+function CartItem({ cartItem, onQuantityUpdate, onRemove }) {
+  const handleQuantityUpdate = (e) => {
     const val = parseInt(e.target.value);
+    console.log(val);
     if (!isNaN(val) && val >= 1) {
-      onQuantityChange(cartItem.id, val);
+      onQuantityUpdate(cartItem.id, val);
     }
   };
 
@@ -26,7 +27,7 @@ function CartItem({ cartItem, onQuantityChange, onRemove }) {
           type="number"
           min="1"
           value={cartItem.quantity}
-          onChange={handleQuantityChange}
+          onChange={handleQuantityUpdate}
           className="form-control me-3"
           style={{ width: "70px" }}
         />

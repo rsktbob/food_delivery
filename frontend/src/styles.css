@@ -4,11 +4,14 @@
   padding: 0;
 }
 
-body {
+html, body {
+  height: 100%;
   font-family: Arial, sans-serif;
   background-color: #f5f5f5;
   color: #333;
   line-height: 1.6;
+  margin: 0;
+  padding: 0;
 }
 
 /* 認證頁面樣式 */

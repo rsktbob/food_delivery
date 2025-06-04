@@ -12,7 +12,10 @@ from django.http import HttpResponse
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from .serializer import FoodItemSerializer,RestaurantSerializer
+from urllib.parse import unquote
+from order.models import Order
+from order.serializer import OrderSerializer
+from .serializer import *
 
 # def calculate_distance(lat1, lon1, lat2, lon2):
 #     # Haversine formula to calculate distance between two points
@@ -190,9 +193,24 @@ def get_restaurant_by_vendor(request):
 
 @api_view(['GET'])
 def get_restaurant(request, restaurant_id):
+    restaurant = Restaurant.objects.get(id=restaurant_id)
+    serializer = RestaurantSerializer(restaurant,  context={'request': request})
+    return Response(serializer.data, status=status.HTTP_200_OK)
+        
+@api_view(['GET'])
+def serach_restaurants(request):
+    name_query = request.GET.get('name', '')
+    restaurants = Restaurant.objects.filter(name__icontains=name_query)
+    serializer = RestaurantSerializer(restaurants, many=True,  context={'request': request})
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+def get_restaurants_by_category(request, food_category):
     try:
-        restaurant = Restaurant.objects.get(id=restaurant_id)
-        serializer = RestaurantSerializer(restaurant,  context={'request': request})
+        decoded_category = unquote(food_category)
+        restaurants = Restaurant.objects.filter(category__name=decoded_category)
+        serializer = RestaurantSerializer(restaurants,  many=True, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
         
     except Restaurant.DoesNotExist:
@@ -203,9 +221,8 @@ def get_restaurant(request, restaurant_id):
     except Exception as e:
         return Response(
             {'error': f'服務器錯誤: {str(e)}'},
-            status=status.HTTP_500_INTERNAL_SERVER_ERRORP
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
-
     
 @api_view(['GET'])
 def get_restaurants(request):
@@ -220,29 +237,34 @@ def get_food_items(request, restaurant_id):
     items = FoodItem.objects.filter(restaurant_id=restaurant_id)
     serializer = FoodItemSerializer(items, many=True, context={'request': request})
     return Response(serializer.data)
-
+    
 
 @api_view(['GET'])
 def get_food_category(request):
-    items = FoodCategory.objects.values('id', 'name')  # QuerySet of dicts
-    items_list = list(items)  # 轉成純 Python list
-    return Response(items_list)
+    items = FoodCategory.objects.all()
+    serializer = RestaurantCategorySerializer(items, many=True, context={'request': request})
+    return Response(serializer.data)
+
+@api_view(['GET'])
+def get_restaurant_orders(request, restaurant_id):
+    orders = Order.objects.filter(restaurant_id=restaurant_id, status__in=['Created', 'Accepted'])
+    serializer = OrderSerializer(orders, many=True)
+    return Response(serializer.data)
 
 @api_view(['POST'])
 def add_food_item(request):
     name = request.data.get('name')
     price = request.data.get('price')
-    category_id = request.data.get('category')
     restaurant_id = request.data.get('restaurant')
     image = request.FILES.get('image')
 
 
-    if not all([name, price, category_id, restaurant_id, image]):
+    if not all([name, price, restaurant_id, image]):
         return Response({"error": "所有欄位皆為必填"}, status=status.HTTP_400_BAD_REQUEST)
 
     # 加入保存資料邏輯，例如：
     FoodItem.objects.create(
-         name=name, price=price, category_id=category_id,
+         name=name, price=price,
          restaurant_id=restaurant_id, image=image
      )
 

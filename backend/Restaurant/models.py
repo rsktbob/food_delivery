@@ -1,6 +1,17 @@
 from django.db import models
 from account.models import VendorUser
 
+class FoodCategory(models.Model):
+    name = models.CharField(max_length=100)
+    image = models.ImageField()
+
+    def __str__(self):
+        return self.name
+    
+    class Meta:
+        verbose_name_plural = "Food Categories"
+
+
 class Restaurant(models.Model):
     owner = models.ForeignKey(VendorUser, on_delete=models.CASCADE, related_name='restaurants')
     name = models.CharField(max_length=255)
@@ -12,25 +23,17 @@ class Restaurant(models.Model):
     rating = models.FloatField(default=0)
     total_ratings = models.IntegerField(default=0)
     image = models.ImageField(upload_to='restaurant_images/', default='restaurant_images/default_restaurant.jpg')
-    
+    category = models.ForeignKey(FoodCategory, blank=True, null=True, on_delete=models.SET_NULL)
+
     def __str__(self):
         return self.name
 
-class FoodCategory(models.Model):
-    name = models.CharField(max_length=100)
-    
-    def __str__(self):
-        return self.name
-    
-    class Meta:
-        verbose_name_plural = "Food Categories"
 
 class FoodItem(models.Model):
     restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE, related_name='food_items')
     name = models.CharField(max_length=255)
     price = models.DecimalField(max_digits=8, decimal_places=2)
     image = models.ImageField(upload_to='menu_items/')
-    category = models.ForeignKey(FoodCategory, on_delete=models.SET_NULL, null=True, related_name='food_items')
     
     def __str__(self):
         return f"{self.name} - {self.restaurant.name}"

@@ -36,7 +36,7 @@ function FoodCard({ food, onAddToCart }) {
             />
         </div>
 
-        <button className="btn btn-primary ms-3" onClick={handleAdd}>
+        <button className="btn btn-primary" onClick={handleAdd}>
             加入
         </button>
         </div>

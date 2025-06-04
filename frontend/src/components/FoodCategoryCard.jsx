@@ -1,23 +1,35 @@
-function FoodCategoryCard({ foodItem }) {
+function FoodCategoryCard({ foodCategory, onClick }) {
   return (
-    <div style={{ width: 100, textAlign: "center", fontFamily: "Arial, sans-serif" }}>
-      {foodItem.image && (
+    <a
+      className="text-center"
+      style={{
+        width: 100,
+        fontFamily: "Arial, sans-serif",
+        flexShrink: 0,
+        textDecoration: "none", // 移除底線
+        cursor: "pointer",      // 顯示點擊樣式
+        color: "inherit",       // 保持文字顏色
+        display: "inline-block" // 保持區塊樣式
+      }}
+      onClick={onClick}
+    >
+      {foodCategory.image && (
         <img
-          src={foodItem.image}
-          alt={foodItem.name}
+          src={foodCategory.image}
+          alt={foodCategory.name}
+          className="mb-2"
           style={{
-            width: 100,
-            height: 100,
+            width: 60,
+            height: 60,
             objectFit: "cover",
             borderRadius: 8,
-            marginBottom: 8,
           }}
         />
       )}
-      <p style={{ margin: 0, fontSize: 14, color: "#555" }}>
-        {foodItem.category?.name || "未分類"}
+      <p className="mb-0" style={{ fontSize: 14, color: "#555" }}>
+        {foodCategory.name || "未分類"}
       </p>
-    </div>
+    </a>
   );
 }
 

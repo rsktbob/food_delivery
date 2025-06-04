@@ -1,14 +1,13 @@
 import React, { useState } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
 
-function AddFoodModal({ show, onClose, onConfirm, categories = [], restaurantId }) {
+function AddFoodModal({ show, onClose, onConfirm, restaurantId }) {
   const [foodName, setFoodName] = useState('');
   const [price, setPrice] = useState('');
   const [image, setImage] = useState(null);
-  const [categoryId, setCategoryId] = useState('');
 
   const handleConfirm = () => {
-    if (!foodName.trim() || !price || !image || !categoryId) {
+    if (!foodName.trim() || !price || !image) {
       alert('請填寫所有欄位');
       return;
     }
@@ -17,16 +16,9 @@ function AddFoodModal({ show, onClose, onConfirm, categories = [], restaurantId 
     formData.append('name', foodName);
     formData.append('price', price);
     formData.append('image', image);
-    formData.append('category', categoryId);
     formData.append('restaurant', restaurantId);
 
     onConfirm(formData);
-
-    // // 清空表單
-    // setFoodName('');
-    // setPrice('');
-    // setImage(null);
-    // setCategoryId('');
   };
 
   return (
@@ -54,19 +46,6 @@ function AddFoodModal({ show, onClose, onConfirm, categories = [], restaurantId 
               value={price}
               onChange={(e) => setPrice(e.target.value)}
             />
-          </Form.Group>
-
-          <Form.Group className="mt-3">
-            <Form.Label>分類</Form.Label>
-            <Form.Select
-              value={categoryId}
-              onChange={(e) => setCategoryId(e.target.value)}
-            >
-              <option value="">請選擇分類</option>
-              {categories.map((cat) => (
-                <option key={cat.id} value={cat.id}>{cat.name}</option>
-              ))}
-            </Form.Select>
           </Form.Group>
 
           <Form.Group className="mt-3">

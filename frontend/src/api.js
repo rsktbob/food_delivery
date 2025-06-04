@@ -145,6 +145,30 @@ export const fetchRestaurant = async (restaurantId) => {
 
   return response.json();
 }
+
+
+export const fetchRestaurantsByCategory = async (foodCategory) => {
+  const API_URL = `${API_BASE_URL}/categories/${foodCategory}/restaurants`;
+  
+  const response = await fetch(API_URL, {
+    method: 'GET',
+    credentials: 'include',
+  });
+
+  return response.json();
+}
+
+export const fetchRestaurantsByName = async (name) => {
+  const API_URL = `${API_BASE_URL}/restaurants/search?name=${name}`;
+
+  const response = await fetch(API_URL, {
+    method: "GET",
+    credentials: "include",
+  });
+
+  return response.json();
+};
+
  
 export const fetchFoodItems = async (restaurantId) => {
   const API_URL = `${API_BASE_URL}/restaurants/${restaurantId}/food_items/`
@@ -162,7 +186,7 @@ export const fetchFoodItems = async (restaurantId) => {
 }
 
 export const fetchCartItems = async () => {
-  const API_URL = `${API_BASE_URL}/cart_items`;
+  const API_URL = `${API_BASE_URL}/cart`;
 
   const response = await fetch(API_URL, {
     method: 'GET',
@@ -177,7 +201,7 @@ export const fetchCartItems = async () => {
 }
 
 
-export const AddFoodItem = async (formData) => {
+export const addFoodItem = async (formData) => {
   const API_URL = `${API_BASE_URL}/food_items/add`;
   const csrfToken = getCSRFToken();
 
@@ -236,7 +260,7 @@ export const deleteFoodItem = async (foodId) => {
   return await response.json();
 }
 
-export const AddFoodItemToCart = async (restaurantId, foodId, quantity) => {
+export const addFoodItemToCart = async (restaurantId, foodId, quantity) => {
   const API_URL = `${API_BASE_URL}/restaurants/${restaurantId}/cart/add`;
   const csrfToken = getCSRFToken();
 
@@ -252,7 +276,6 @@ export const AddFoodItemToCart = async (restaurantId, foodId, quantity) => {
       quantity: quantity,
     }),
   })
-
   
   if (!response.ok) {
     throw new Error('加入到購物車失敗');
@@ -261,8 +284,75 @@ export const AddFoodItemToCart = async (restaurantId, foodId, quantity) => {
   return await response.json();
 }
 
+
+export const updateCartItemQuantity = async (cartItemId, quantity) => { 
+  const API_URL = `${API_BASE_URL}/cart/${cartItemId}/update`;
+  const csrfToken = getCSRFToken();
+
+  const response = await fetch(API_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': csrfToken,
+    },
+    credentials: 'include',
+    body: JSON.stringify({
+      quantity: quantity,
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to adjust cart item quantity');
+  }
+
+  return await response.json();
+};
+
+export const setOrderState = async (orderId, status) => {
+  const csrfToken = getCSRFToken();
+
+  const API_URL = `${API_BASE_URL}/orders/${orderId}/status/`;
+
+  const response = await fetch(API_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': csrfToken,
+    },
+    credentials: 'include',
+    body: JSON.stringify({ status: status }),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.detail || '訂單狀態更新失敗');
+  }
+
+  return await response.json();
+};
+
+export const fetchRestaurantOrders = async (restaurantId) => { 
+  const API_URL = `${API_BASE_URL}/restaurants/${restaurantId}/orders`;
+  const csrfToken = getCSRFToken();
+
+  const response = await fetch(API_URL, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': csrfToken,
+    },
+    credentials: 'include',
+  });
+
+  if (!response.ok) {
+    throw new Error('取得餐廳訂單失敗');
+  }
+
+  return await response.json();
+};
+
 export const deleteCartItem = async (cartItemId) => {
-  const API_URL = `${API_BASE_URL}/cart_items/${cartItemId}/delete`;
+  const API_URL = `${API_BASE_URL}/cart/${cartItemId}/delete`;
   const csrfToken = getCSRFToken();
   
   const response = await fetch(API_URL, {

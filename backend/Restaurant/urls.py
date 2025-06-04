@@ -12,5 +12,8 @@ urlpatterns = [
     path('api/food_items/add', views.add_food_item),
     path('api/food_items/<int:food_id>/delete', views.delete_food_item),
     path('api/restaurants', views.get_restaurants),
+    path('api/restaurants/<int:restaurant_id>/orders/', views.get_restaurant_orders),
+    path('api/categories/<str:food_category>/restaurants', views.get_restaurants_by_category),
     path('api/restaurants/<int:restaurant_id>', views.get_restaurant),
+    path('api/restaurants/search/', views.serach_restaurants),
 ]

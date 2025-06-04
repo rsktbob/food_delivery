@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from "react";
-import {AddFoodItem, fetchFoodItems, fetchFoodCategory, fetchRestaurant, deleteFoodItem}  from "../../api";
+import {addFoodItem, fetchFoodItems, fetchFoodCategory, fetchRestaurant, deleteFoodItem}  from "../../api";
 import MenuItem from "../../components/MenuItem";
 import AddFoodModal from "../../components/AddFoodModel";
 
 function ReviseMenuPage({ user }) {
   // 狀態宣告
   const [foodItems, setFoodItems] = useState([]);
-  const [categories, setCategories] = useState([]);
   const [refresh, setRefresh] = useState(false);
   const [showAddFoodModal, setShowAddFoodModal] = useState(false);
   const [restaurant, setRestaurant] = useState({
@@ -21,16 +20,6 @@ function ReviseMenuPage({ user }) {
       .then(data => setFoodItems(data))
       .catch(err => console.error("載入菜單失敗:", err));
   }, [refresh]);
-
-  // 載入分類，第一次渲染時呼叫
-  useEffect(() => {
-    fetchFoodCategory()
-      .then(data => {
-        console.log(data);  
-        setCategories(data)
-      })
-      .catch(err => console.error("載入分類失敗:", err));
-  }, []);
 
   // 載入餐丁，第一次渲染時呼叫
   useEffect(() => {
@@ -54,7 +43,7 @@ function ReviseMenuPage({ user }) {
 
   // 新增餐點的處理
   const handleAddFood = async (formData) => {
-    AddFoodItem(formData)
+    addFoodItem(formData)
     .then(response => {
       alert(response.message);
       setShowAddFoodModal(false);
@@ -67,7 +56,7 @@ function ReviseMenuPage({ user }) {
   };
 
   return (
-    <div className="container py-5">
+    <div>
       <h2 className="display-4">修改餐點</h2>
       
       <button className="btn btn-primary" onClick={handleShowFoodModal}>
@@ -82,7 +71,7 @@ function ReviseMenuPage({ user }) {
         ) : (
           <div className="row">
             {foodItems.map(item => (
-              <div key={item.id} className="col-md-4 mb-3">
+              <div key={item.id} className="col-md-3 mb-3">
                 <MenuItem food={item} onDelete={handleFoodItemDelete}/>
               </div>
             ))}
@@ -95,7 +84,6 @@ function ReviseMenuPage({ user }) {
         show={showAddFoodModal}
         onClose={handleModalClose}
         onConfirm={handleAddFood}
-        categories={categories}
         restaurantId={restaurant.id}
       />
     </div>

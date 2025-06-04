@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { AddFoodItemToCart, fetchFoodItems, fetchRestaurant } from '../../api';
+import { addFoodItemToCart, fetchFoodItems, fetchRestaurant } from '../../api';
 import RestaurantInfo from '../../components/RestaurantInfo';
 import FoodCard from '../../components/FoodCard';
 import FoodCategoryCard from '../../components/FoodCategoryCard';
@@ -26,7 +26,7 @@ function RestaurantDetailPage() {
   }, [id])
 
   const handleAddFoodItemToCart = (foodId, quantity) => {
-    AddFoodItemToCart(id, foodId, quantity)
+    addFoodItemToCart(id, foodId, quantity)
     .then(response => alert("新增食物成功"))
     .catch(error => console.log(`error: ${error}`))
   }
@@ -45,7 +45,7 @@ function RestaurantDetailPage() {
         ) : (
           <div className="row">
             {foodItems.map(item => (
-              <div key={item.id} className="col-md-4 mb-3">
+              <div key={item.id} className="col-md-3 mb-3">
                 <FoodCard food={item} onAddToCart={handleAddFoodItemToCart}/>
                 {/* <FoodCategoryCard foodItem={item}/> */}
               </div>

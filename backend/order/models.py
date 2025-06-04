@@ -36,18 +36,13 @@ class CartItem(models.Model):
     class Meta:
         unique_together = ('cart', 'food_item')  # 每位使用者對每項食物只能有一筆記錄
 
-    def save(self, *args, **kwargs):
-        existing_item = CartItem.objects.filter(cart=self.cart, food_item=self.food_item).first()
-
-        if existing_item:
-            CartItem.objects.filter(pk=existing_item.pk).update(
-                quantity=existing_item.quantity + self.quantity
-            )
-            print(existing_item.quantity, self.quantity)
+    def change_quantity(self, quantity):
+        new_quantity = self.quantity + quantity
+        if new_quantity < 1:
+            self.delete()
         else:
-            super().save(*args, **kwargs)
-
-    
+            self.quantity = new_quantity
+            self.save(update_fields=['quantity'])
 
 # class CartItemCustomization(models.Model):
 #     cart_item = models.ForeignKey(CartItem, on_delete=models.CASCADE)
@@ -63,6 +58,8 @@ class Order(models.Model):
         ('Assigned', 'Assigned to Courier'),#有外送員接單
         ('Picked_Up', 'Picked Up'),#外送員拿到餐點
         ('Finish', 'Finish'),#外送員送到餐點
+        ('Done', 'Done'),
+        ('Rejected', 'Rejected'),
     )
     
     customer = models.ForeignKey(CustomerUser, on_delete=models.CASCADE, related_name='orders')

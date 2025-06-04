@@ -6,6 +6,7 @@ from django.db import transaction
 from .models import *
 from .serializer import CartItemSerializer
 
+
 def set_order_state(order, status):
     try:
         order.status = status
@@ -13,7 +14,6 @@ def set_order_state(order, status):
         return True
     except:
         return False
-
 
 @api_view(['POST'])
 def courierTakeOrder(request):
@@ -30,7 +30,6 @@ def courierTakeOrder(request):
         response['success'] = True
     else:
         response['success'] = False
-    print(order.courier.id) 
     return Response(response)
 
 @api_view(['GET'])
@@ -79,8 +78,7 @@ def add_to_cart(request, restaurant_id):
     # 檢查是否已經存在購物車項目
     cart_item, created = CartItem.objects.get_or_create(
         cart=cart,
-        food_item=food_item,
-        quantity=quantity
+        food_item=food_item
     )
 
     if not created:
@@ -100,13 +98,37 @@ def get_cart_items(request):
     
     return Response(serializer.data)
     
+@api_view(['POST'])
+def set_order_status(request, order_id):
+    new_status = request.data.get('status', '')
+    order = Order.objects.get(id=order_id)
+    order.status = new_status
+    order.save()
+
+    return Response({"message" : "已成功設定訂單狀態"}, status=status.HTTP_200_OK)
     
+    
+
 @api_view(['DELETE'])
 def delete_cart_items(request, cart_item_id):
     cart_item = CartItem.objects.get(id=cart_item_id)
     cart_item.delete()
 
     return Response({"message": "餐點成功刪除"}, status=status.HTTP_200_OK)    
+
+@api_view(['POST'])
+def update_cart_item_quantity(request, cart_item_id): 
+    try:
+        cart_item = CartItem.objects.get(id=cart_item_id)
+    except CartItem.DoesNotExist:
+        return Response({"error": "Cart item not found"}, status=404)
+
+    new_quantity = int(request.data.get("quantity", 0))
+    if new_quantity >= 1:
+        cart_item.quantity = new_quantity
+        cart_item.save()
+    return Response({"success": True, "new_quantity": new_quantity})
+
 
 @api_view(['POST'])
 def courierPickUpMeal(request):
