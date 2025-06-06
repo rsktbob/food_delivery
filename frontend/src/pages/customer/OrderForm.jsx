@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { fetchCartItems, createOrders } from '../../api'
 import { useJsApiLoader } from '@react-google-maps/api';
-import { useParams,useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 export default function OrderForm({user}) {
   const [address, setAddress] = useState(user.address);
-  const [payment, setPayment] = useState(user.payment);
+  const [payment, setPayment] = useState(null);
   const [cartItems, setCartItems] = useState([]);
 
   const { isLoaded } = useJsApiLoader({

@@ -1,6 +1,7 @@
 from django.db import models
 from account.models import CustomerUser, CourierUser, VendorUser
 from Restaurant.models import Restaurant, FoodItem
+import math
 
 class Cart(models.Model):
     customer = models.ForeignKey(CustomerUser, on_delete=models.CASCADE, related_name='cart')
@@ -86,6 +87,14 @@ class Order(models.Model):
         self.total_price = sum(item.get_total_price() for item in self.items.all())
         self.grand_total = self.total_price + self.delivery_fee
         self.save()
+    
+    def check_distance(self, lat, lng, range):
+        print("aerhadtj")
+        return self.restaurant.get_distance(lat, lng) < range
+        
+    
+    def get_total_distance(self, lat, lng):
+        return self.restaurant.get_distance(lat, lng) + self.restaurant.get_distance(self.latitude, self.longitude)
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')

@@ -1,5 +1,6 @@
 from django.db import models
 from account.models import VendorUser
+from math import radians, sin, cos, sqrt, atan2
 
 class Restaurant(models.Model):
     owner = models.ForeignKey(VendorUser, on_delete=models.CASCADE, related_name='restaurants')
@@ -15,7 +16,19 @@ class Restaurant(models.Model):
     
     def __str__(self):
         return self.name
-
+    
+    def get_distance(self, lat, lng):
+        R = 6371  # 地球半徑，單位：公里
+        dlat = radians(self.latitude - lat)
+        dlon = radians(self.longitude - lng)
+        
+        a = sin(dlat / 2)**2 + cos(radians(lat)) * cos(radians(self.latitude)) * sin(dlon / 2)**2
+        c = 2 * atan2(sqrt(a), sqrt(1 - a))
+        print(lat,lng)
+        print('距離::::::::::::::::::::::::')
+        print(R * c)
+        return R * c  # 單位：公里
+    
 class FoodCategory(models.Model):
     name = models.CharField(max_length=100)
     

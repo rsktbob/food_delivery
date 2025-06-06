@@ -28,7 +28,6 @@ function DeliveryMap({
   });
 
   useEffect(() => {
-    console.log("Order updated:", selectedOrder);
   }, [selectedOrder]);
   if (loadError) return <div style={{padding: '20px', color: 'red'}}>地圖載入失敗</div>;
   if (!isLoaded) return <div style={{padding: '20px'}}>地圖載入中...</div>;
@@ -75,7 +74,7 @@ function DeliveryMap({
       {/* 顧客標記 */}
       {selectedOrder && (
         <Marker
-          position={{lat: selectedOrder.latitude, lng: selectedOrder.longitude}}
+          position={{lat: Number(selectedOrder.latitude), lng: Number(selectedOrder.longitude)}}
           icon={{
             url: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='%232563eb' stroke='white' stroke-width='2'%3E%3Cpath d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'/%3E%3Ccircle cx='12' cy='7' r='4'/%3E%3C/svg%3E",
             scaledSize: { width: 36, height: 36 },

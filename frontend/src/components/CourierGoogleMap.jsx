@@ -116,12 +116,23 @@ function DeliveryMap({
     }
   }, [isNavigating, selectedOrder, navigationStep]);
 
+  //更新外送員座標 !!!!!!!!!!要改!!!!!!!!!!!!!!
+  useEffect(() => {
+    const fetchOrders = async () => {
+      console.log(deliveryPosition.lat,deliveryPosition.lng)
+      CourierUpdatePos(user.id,deliveryPosition.lat,deliveryPosition.lng)//傳座標給後端
+    };
+    fetchOrders();
+    const interval = setInterval(fetchOrders, 3000);
+    return () => clearInterval(interval);
+  },[deliveryPosition, user.id]);
+
   // 檢查到達目的地
   useEffect(() => {
     if (!isNavigating || !selectedOrder || navigationStep === 0) return;
 
     const checkTimer = setInterval(() => {
-      CourierUpdatePos(user.id,deliveryPosition.lat,deliveryPosition.lng)//傳座標給後端
+      
       if (navigationStep === 2) {
         // 到達餐廳，前往顧客
         clearRoute();
