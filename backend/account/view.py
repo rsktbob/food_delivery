@@ -61,7 +61,9 @@ def register_user(request):
                 restaurant_name = request.data.get('restaurant_name', '')
                 restaurant_image = request.data.get('restaurant_image', None)
                 restaurant_address = request.data.get('restaurant_address', None)
-                restaurant_phone_number = request.data.get('restaurant_phone_number', None)                
+                restaurant_phone_number = request.data.get('restaurant_phone_number', None)
+                restaurant_latitude = request.data.get('restaurant_latitude', None)
+                restaurant_longitude = request.data.get('restaurant_longitude', None)
 
                 user = VendorUser.objects.create_user(
                     username=username,
@@ -76,7 +78,9 @@ def register_user(request):
                     name=restaurant_name,
                     address=restaurant_address,
                     phone_number=restaurant_phone_number,
-                    image=restaurant_image
+                    image=restaurant_image,
+                    latitude=restaurant_latitude,
+                    longitude=restaurant_longitude
                 )
 
                 

@@ -13,10 +13,10 @@ function CourierOrderInfo({ selectedOrder ,navigationStep, onNavigationStepChang
           <strong>訂單編號：</strong>{selectedOrder.id}
         </div>
         <div className="mb-3">
-          <strong>客戶姓名：</strong>{selectedOrder.customer_name}
+          <strong>客戶姓名：</strong>{selectedOrder.customer}
         </div>
         <div className="mb-3">
-          <strong>餐廳：</strong>{selectedOrder.restaurant}
+          <strong>餐廳：</strong>{selectedOrder.restaurant.name}
         </div>
         <div className="mb-3">
           <strong>距離：</strong>{selectedOrder.distance} m

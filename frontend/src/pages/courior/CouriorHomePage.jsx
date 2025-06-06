@@ -77,7 +77,7 @@ function CouriorHomePage({ user }) {
         {/* 左側：訂單列表 - 固定寬度 */}
         <div className="col-auto" style={{ width: '400px' }}>
           {navigationStep === 0 ? 
-          <CouriorOrderList 
+          <CouriorOrderList
             user={user}
             selectedOrder={selectedOrder}
             onShowOrderDetails={handleShowOrderDetails}

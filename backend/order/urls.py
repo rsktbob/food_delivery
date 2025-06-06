@@ -13,4 +13,7 @@ urlpatterns = [
     path('api/courier-check-orders/', views.courierCheckOrder, name='courier-check-orders'),
     path('api/courier-pick-up-meals/', views.courierPickUpMeal, name='courier-pick-up-meals'),
     path('api/courier-finish-orders/', views.courierFinishOrder, name='courier-finish-orders'),
+    path('api/create-orders/', views.createOrders, name='create-orders'),
+    path('api/customer-get-order/', views.CustomerGetOrder, name='customer-get-order'),
+    path('api/customer-done-order/', views.CustomerDoneOrder, name='customer-done-order'),
 ]

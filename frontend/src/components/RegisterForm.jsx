@@ -5,6 +5,7 @@ import RadioButtonGroup from './RadioButtonGroup';
 import SelectInput from './SelectInput';
 import ErrorMessage from './ErrorMessage';
 import ImageInput from './ImageInput';
+import { useJsApiLoader } from '@react-google-maps/api';
 
 function RegisterForm({ onRegisterSuccess }) {
   const [userType, setUserType] = useState('customer');
@@ -52,6 +53,33 @@ function RegisterForm({ onRegisterSuccess }) {
     }
   }
 
+const { isLoaded } = useJsApiLoader({
+  id: 'google-map-script',
+  googleMapsApiKey: 'AIzaSyCgoPkIvc9J-vnVbVDyYDztNTZngKPecEE' // 替換成你的 API Key
+});
+
+const geocodeAddress = async (address) => {
+  if (!isLoaded) {
+    throw new Error('Google Maps API 尚未載入');
+  }
+
+  return new Promise((resolve, reject) => {
+    const geocoder = new window.google.maps.Geocoder();
+    
+    geocoder.geocode({ address: address }, (results, status) => {
+      if (status === 'OK' && results[0]) {
+        const location = results[0].geometry.location;
+        resolve({
+          lat: location.lat(),
+          lng: location.lng()
+        });
+      } else {
+        reject(new Error('地址轉換失敗'));
+      }
+    });
+  });
+};
+
 const handleSubmit = async (e) => {
   e.preventDefault();
   setLoading(true);
@@ -66,9 +94,21 @@ const handleSubmit = async (e) => {
   userData.user_type = userType
   if (userType === 'customer') {
     userData.address = userData.address;
-  } else if (userType === 'courier') {
+  }
+  else if (userType === 'courier') {
     userData.vehicle_type = userData.vehicle_type;
     userData.license_plate = userData.license_plate;
+  }
+  else if (userType === 'vendor' && userData.restaurant_address) {
+    try {
+      const coordinates = await geocodeAddress(userData.restaurant_address);
+      userData.restaurant_latitude = coordinates.lat;
+      userData.restaurant_longitude = coordinates.lng;
+    } catch (error) {
+      setError('地址轉換失敗，請檢查餐廳地址是否正確');
+      setLoading(false);
+      return;
+    }
   }
 
   registerUser(userData)

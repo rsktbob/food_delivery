@@ -390,3 +390,61 @@ export const fetchRestaurants = async () => {
 
   return await response.json();
 }
+
+export const createOrders = async (lat, lng, address,payment) => {
+  const API_URL = `${API_BASE_URL}/create-orders/`;
+  const csrfToken = getCSRFToken();
+  const response = await fetch(API_URL, {
+    method: 'POST',
+    headers: {
+      'X-CSRFToken': csrfToken,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      "pos":{
+        "lat":lat,
+        "lng":lng
+      },
+      "address":address,
+      "payment":payment,
+    }),
+    credentials: 'include',
+  })
+
+  if (!response.ok) {
+    throw new Error('下單失敗');
+  }
+
+}
+
+export const CustomerGetOrder = async () => {
+  const API_URL = `${API_BASE_URL}/customer-get-order/`;
+  const csrfToken = getCSRFToken();
+  const response = await fetch(API_URL, {
+    method: 'GET',
+    headers: {
+      'X-CSRFToken': csrfToken,
+      'Content-Type': 'application/json'
+    },
+    credentials: 'include',
+  })
+
+  if (!response.ok) {
+    throw new Error('顧客獲取訂單失敗');
+  }
+  return await response.json();
+}
+
+export const CustomerDoneOrders = async (id) => {
+  const API_URL = 'http://localhost:8000/api/customer-done-order/';
+  const csrfToken = getCSRFToken();
+  fetch(API_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': csrfToken,
+    },
+    body: JSON.stringify({ "order_id": id}),
+    credentials: 'include',
+  });
+};

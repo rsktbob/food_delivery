@@ -8,7 +8,8 @@ from .models import Order
 
 from .models import Order
 from .models import *
-from .serializer import CartItemSerializer
+from .serializer import CartItemSerializer,OrderSerializer
+
 
 
 def set_order_state(order, status):
@@ -18,6 +19,9 @@ def set_order_state(order, status):
         return True
     except:
         return False
+
+def distance(x1, y1, x2, y2):
+    return math.sqrt((x2 - x1)**2 + (y2 - y1)**2)
 
 @api_view(['POST'])
 def courierTakeOrder(request):
@@ -38,7 +42,10 @@ def courierTakeOrder(request):
 
 @api_view(['GET'])
 def courierCheckOrder(request):
+    user = request.user
+    courier = CourierUser.objects.get(id = user.id)
     orders = Order.objects.filter(status='Accepted')
+    
      # 使用字典推導式構建數據
     orders_data = [{
         'id': order.id,
@@ -55,7 +62,7 @@ def courierCheckOrder(request):
             'lat': float(order.latitude),
             'lng': float(order.longitude)
         }
-    } for order in orders]
+    } for order in orders if order.check_distance(courier.latitude,courier.longitude,5)]
     
     return Response(orders_data)  # 直接返回數組
 
@@ -148,4 +155,53 @@ def courierFinishOrder(request):
     order = Order.objects.get(id=order_id)        
     if order.status == "Picked_Up":
         set_order_state(order, 'Finish')
+    return Response(status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+def createOrders(request):
+    user = request.user
+    cart = Cart.objects.get(customer_id=user.id)
+    pos = request.data.get('pos')
+    lat = pos.get('lat')
+    lng = pos.get('lng')
+    address = request.data.get('address')
+    payment = request.data.get('payment')
+
+    order = Order.objects.create(
+        customer_id = user.id,
+        restaurant = cart.restaurant,
+        delivery_address = address,
+        latitude = lat,
+        longitude = lng,
+        status = 'Created',
+        payment_method = payment,
+        total_price = 100,
+        delivery_fee = 100
+    )
+
+    for item in cart.cart_items.all():
+        OrderItem.objects.create(
+            order = order,
+            menu_item = item.food_item,
+            quantity = item.quantity,
+            unit_price = item.food_item.price
+        )
+        item.delete()
+    return Response(status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+def CustomerGetOrder(request):
+    user = request.user
+    order = Order.objects.filter(customer_id=user.id).exclude(status='Done').exclude(status='reject').first()
+    serializer = OrderSerializer(order)
+    print(order)
+    return Response(serializer.data)
+
+@api_view(['POST'])
+def CustomerDoneOrder(request):
+    order_id = request.data.get('order_id')
+    order = Order.objects.get(id=order_id)
+    if order.status == "Finish":
+        set_order_state(order, 'Done')
     return Response(status=status.HTTP_200_OK)
