@@ -3,7 +3,8 @@ from django.contrib.auth import get_user_model
 from decimal import Decimal
 from unittest.mock import patch, MagicMock
 
-from order.models import Order, OrderItem, Cart, CartItem
+from backend.order.models import Order
+from order.models import OrderItem, Cart, CartItem
 from account.models import CustomerProfile, CourierProfile, VendorProfile
 from Restaurant.models import Restaurant, FoodItem
 from order.services import OrderService, CustomerOrderService, VendorOrderService, CourierOrderService

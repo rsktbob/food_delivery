@@ -13,9 +13,9 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from urllib.parse import unquote
-from order.models import Order
 from order.serializer import OrderSerializer
 from .serializer import *
+from order.models import Order
 
 # def calculate_distance(lat1, lon1, lat2, lon2):
 #     # Haversine formula to calculate distance between two points
@@ -154,7 +154,7 @@ class RestaurantManegHandler:
         customer = request.user.customer_profile
 
         cart = Cart.objects.filter(customer=customer, restaurant=restaurant).first()
-        if cart == None:
+        if cart is None:
             cart = Cart(customer=customer, restaurant=restaurant)
             cart.save()
         

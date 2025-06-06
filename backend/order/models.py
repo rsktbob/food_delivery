@@ -1,5 +1,5 @@
 from django.db import models
-from account.models import CustomerUser, CourierUser, VendorUser
+from account.models import CourierUser, CustomerUser
 from Restaurant.models import Restaurant, FoodItem
 
 class Cart(models.Model):
@@ -44,12 +44,6 @@ class CartItem(models.Model):
             self.quantity = new_quantity
             self.save(update_fields=['quantity'])
 
-# class CartItemCustomization(models.Model):
-#     cart_item = models.ForeignKey(CartItem, on_delete=models.CASCADE)
-#     choice = models.ForeignKey(CustomizationChoice, on_delete=models.CASCADE)
-    
-#     def __str__(self):
-#         return f"{self.cart_item.menu_item.name} - {self.choice.name}"
 
 class Order(models.Model):
     ORDER_STATUS_CHOICES = (
@@ -61,7 +55,7 @@ class Order(models.Model):
         ('Done', 'Done'),
         ('Rejected', 'Rejected'),
     )
-    
+
     customer = models.ForeignKey(CustomerUser, on_delete=models.CASCADE, related_name='orders')
     restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE, related_name='orders')
     courier = models.ForeignKey(CourierUser, on_delete=models.SET_NULL, null=True, blank=True, related_name='deliveries')
@@ -73,14 +67,21 @@ class Order(models.Model):
     total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     delivery_fee = models.DecimalField(max_digits=6, decimal_places=2, default=0)
     is_paid = models.BooleanField(default=False)
-    
+
     def __str__(self):
         return f"Order #{self.id} - {self.customer.username}"
-    
+
     def calculate_totals(self):
         self.total_price = sum(item.get_total_price() for item in self.items.all())
         self.grand_total = self.total_price + self.delivery_fee
         self.save()
+
+# class CartItemCustomization(models.Model):
+#     cart_item = models.ForeignKey(CartItem, on_delete=models.CASCADE)
+#     choice = models.ForeignKey(CustomizationChoice, on_delete=models.CASCADE)
+    
+#     def __str__(self):
+#         return f"{self.cart_item.menu_item.name} - {self.choice.name}"
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')

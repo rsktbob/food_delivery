@@ -3,6 +3,10 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from django.contrib.auth import authenticate, login
 from django.db import transaction
+
+from .models import Order
+
+from .models import Order
 from .models import *
 from .serializer import CartItemSerializer
 
@@ -141,7 +145,7 @@ def courierPickUpMeal(request):
 @api_view(['POST'])
 def courierFinishOrder(request):
     order_id = request.data.get('order_id')
-    order = Order.objects.get(id=order_id)  
+    order = Order.objects.get(id=order_id)        
     if order.status == "Picked_Up":
         set_order_state(order, 'Finish')
     return Response(status=status.HTTP_200_OK)
