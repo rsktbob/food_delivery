@@ -260,6 +260,28 @@ export const deleteFoodItem = async (foodId) => {
   return await response.json();
 }
 
+
+export const updateFoodItem = async (foodId, formData) => {
+  const API_URL = `${API_BASE_URL}/food_items/${foodId}/update`;
+  const csrfToken = getCSRFToken();
+  
+  
+  const response = await fetch(API_URL, {
+    method: 'PATCH',
+    headers: {
+      'X-CSRFToken': csrfToken,
+    },
+    body: formData,
+    credentials: 'include',
+  })
+
+  if (!response.ok) {
+    throw new Error('修改餐點失敗');
+  }
+
+  return await response.json();
+}
+
 export const addFoodItemToCart = async (restaurantId, foodId, quantity) => {
   const API_URL = `${API_BASE_URL}/restaurants/${restaurantId}/cart/add`;
   const csrfToken = getCSRFToken();

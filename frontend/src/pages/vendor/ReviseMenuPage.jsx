@@ -1,18 +1,21 @@
 import React, { useState, useEffect } from "react";
-import {addFoodItem, fetchFoodItems, fetchFoodCategory, fetchRestaurant, deleteFoodItem}  from "../../api";
+import {addFoodItem, fetchFoodItems, fetchFoodCategory, fetchRestaurant, deleteFoodItem, updateFoodItem}  from "../../api";
 import MenuItem from "../../components/MenuItem";
-import AddFoodModal from "../../components/AddFoodModel";
+import AddFoodModal from "../../components/AddFoodModal";
+import EditFoodModal from "../../components/EditFoodModal";
 
 function ReviseMenuPage({ user }) {
   // 狀態宣告
   const [foodItems, setFoodItems] = useState([]);
   const [refresh, setRefresh] = useState(false);
   const [showAddFoodModal, setShowAddFoodModal] = useState(false);
+  const [showEditFoodModal, setShowEditFoodModal] = useState(false);  
   const [restaurant, setRestaurant] = useState({
         name: '',
         address: '',
         image_url: '',
     });
+  const [selectedFood, setSelectedFood] = useState(null);
 
   // 載入菜單，refresh 改變時會重新載入
   useEffect(() => {
@@ -30,9 +33,15 @@ function ReviseMenuPage({ user }) {
 
 
   // 控制 Modal 顯示與隱藏
-  const handleShowFoodModal = () => setShowAddFoodModal(true);
-  const handleModalClose = () => setShowAddFoodModal(false);
-  const handleFoodItemDelete = (id) => {
+  const handleShowAddFoodModal = () => setShowAddFoodModal(true);
+  const handleAddModalClose = () => setShowAddFoodModal(false);
+  const handleShowEditFoodModal = (food) => {
+    setSelectedFood(food);
+    setShowEditFoodModal(true);
+  }
+  const handleEditModalClose = () => setShowEditFoodModal(false);
+
+  const handleDeleteFood = (id) => {
     deleteFoodItem(id)
     .then(response => {
       alert(response);
@@ -42,7 +51,7 @@ function ReviseMenuPage({ user }) {
   }
 
   // 新增餐點的處理
-  const handleAddFood = async (formData) => {
+  const handleAddFood = (formData) => {
     addFoodItem(formData)
     .then(response => {
       alert(response.message);
@@ -55,11 +64,25 @@ function ReviseMenuPage({ user }) {
     })
   };
 
+  // 修改餐點的處理
+  const handleEditFood = (foodId, formData) => {
+    updateFoodItem(foodId, formData)
+    .then(response => {
+      alert(response.message);
+      setShowEditFoodModal(false);
+      setRefresh(prev => !prev);
+    })
+    .catch(err => {
+      console.error("修改餐點失敗:", err);
+      alert("修改餐點失敗，請稍後再試");
+    })
+  };
+
   return (
-    <div>
+    <div style={{padding: '20px'}}>
       <h2 className="display-4">修改餐點</h2>
       
-      <button className="btn btn-primary" onClick={handleShowFoodModal}>
+      <button className="btn btn-primary" onClick={handleShowAddFoodModal}>
         新增餐點
       </button>
 
@@ -72,7 +95,7 @@ function ReviseMenuPage({ user }) {
           <div className="row">
             {foodItems.map(item => (
               <div key={item.id} className="col-md-3 mb-3">
-                <MenuItem food={item} onDelete={handleFoodItemDelete}/>
+                <MenuItem food={item} onDelete={handleDeleteFood} onEdit={() => handleShowEditFoodModal(item,)}/>
               </div>
             ))}
           </div>
@@ -82,11 +105,20 @@ function ReviseMenuPage({ user }) {
       {/* 新增餐點 Modal */}
       <AddFoodModal
         show={showAddFoodModal}
-        onClose={handleModalClose}
+        onClose={handleAddModalClose}
         onConfirm={handleAddFood}
         restaurantId={restaurant.id}
       />
+
+      {/* 修改餐點 Modal */}
+      <EditFoodModal
+        show={showEditFoodModal}
+        onClose={handleEditModalClose}
+        onConfirm={handleEditFood}
+        food={selectedFood}
+      />
     </div>
+
   );
 }
 

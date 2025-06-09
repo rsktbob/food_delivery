@@ -16,7 +16,10 @@ function RestaurantDetailPage() {
 
   useEffect(() => {
     fetchRestaurant(id)
-    .then(data => setRestaurant(data))
+    .then(data => {
+      console.log(data);
+      setRestaurant(data);
+    })
     .catch(error => console.log(`error: ${error}`))
 
     fetchFoodItems(id)

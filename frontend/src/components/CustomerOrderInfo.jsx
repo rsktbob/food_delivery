@@ -27,11 +27,11 @@ function CourierOrderInfo({ selectedOrder }) {
   // 將字串狀態轉換為數字
   const getStatusNumber = (status) => {
     switch(status) {
-      case 'Created': return 1;
-      case 'Accepted': return 2;
-      case 'Assigned': return 3;
-      case 'Picked_Up': return 4;
-      case 'Finish': return 5;
+      case 'created': return 1;
+      case 'accepted': return 2;
+      case 'assigned': return 3;
+      case 'picked_up': return 4;
+      case 'finish': return 5;
       default: return 1;
     }
   };

@@ -22,7 +22,7 @@ const mockData = {
                 name: "Sarah Wilson",
                 address: "456 Oak Ave, Apt 7B"
             },
-            status: "Accepted",
+            status: "accepted",
             total_price: 27.95,
             delivery_fee: 4.99,
             payment_method: "Credit Card",
@@ -44,7 +44,7 @@ const mockData = {
                 name: "Michael Lee",
                 address: "222 Pine Rd"
             },
-            status: "Accepted",
+            status: "accepted",
             total_price: 34.50,
             delivery_fee: 3.99,
             payment_method: "Cash on Delivery",
@@ -66,7 +66,7 @@ const mockData = {
                 name: "Emma Garcia",
                 address: "555 Walnut St, Unit 12"
             },
-            status: "Accepted",
+            status: "accepted",
             total_price: 22.75,
             delivery_fee: 4.50,
             payment_method: "Credit Card",
@@ -89,7 +89,7 @@ const mockData = {
                 name: "David Kim",
                 address: "777 Spruce Ct"
             },
-            status: "Finish",
+            status: "finish",
             total_price: 39.95,
             delivery_fee: 5.99,
             payment_method: "Credit Card",
@@ -106,7 +106,7 @@ const mockData = {
                 name: "Jennifer Smith",
                 address: "999 Cedar Blvd"
             },
-            status: "Finish",
+            status: "finish",
             total_price: 28.50,
             delivery_fee: 4.50,
             payment_method: "Credit Card",
@@ -123,7 +123,7 @@ const mockData = {
                 name: "Robert Johnson",
                 address: "222 Palm Ave"
             },
-            status: "Finish",
+            status: "finish",
             total_price: 24.75,
             delivery_fee: 3.99,
             payment_method: "Cash on Delivery",
@@ -307,10 +307,10 @@ function renderActiveOrder() {
     `;
     
     // Update action buttons based on order status
-    if (order.status === 'Assigned') {
+    if (order.status === 'assigned') {
         pickupBtn.disabled = false;
         deliveredBtn.disabled = true;
-    } else if (order.status === 'Picked_Up') {
+    } else if (order.status === 'picked_up') {
         pickupBtn.disabled = true;
         deliveredBtn.disabled = false;
     } else {
@@ -373,7 +373,7 @@ function acceptOrder(orderId) {
     
     // Get the order and update its status
     const order = mockData.available_orders[orderIndex];
-    order.status = 'Assigned';
+    order.status = 'assigned';
     
     // Set as active order and remove from available
     mockData.active_order = order;
@@ -420,7 +420,7 @@ function markOrderAsPickedUp() {
     if (!mockData.active_order) return;
     
     // Update order status
-    mockData.active_order.status = 'Picked_Up';
+    mockData.active_order.status = 'picked_up';
     
     // Update UI
     renderActiveOrder();
@@ -435,7 +435,7 @@ function markOrderAsDelivered() {
     if (!mockData.active_order) return;
     
     // Update order status
-    mockData.active_order.status = 'Finish';
+    mockData.active_order.status = 'finish';
     
     // Add to order history
     mockData.active_order.delivered_at = new Date().toISOString();

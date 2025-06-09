@@ -34,8 +34,7 @@ function VendorHomePage({user}){
 
         fetchOrders(); // 先抓一次訂單
 
-        // 設定每隔 10 秒抓一次（可依需求調整頻率）
-        const intervalId = setInterval(fetchOrders, 3);
+        const intervalId = setInterval(fetchOrders, 3000);
 
         // 清除定時器，避免記憶體洩漏
         return () => clearInterval(intervalId);
@@ -44,19 +43,19 @@ function VendorHomePage({user}){
 
 
     return(
-        <div className="container-fluid">
-            <div className="row">
-                {/* 左側：訂單列表 */}
-                <div className="col-auto" style={{ width: '400px' }}>
-                    <VendorOrderList orders={orders} setOrders={setOrders} />
-                </div>
+    <div className="container-fluid">
+        <div className="row">
+            {/* 左側：訂單列表 */}
+            <div className="col-auto" style={{ width: '400px' }}>
+                <VendorOrderList orders={orders} setOrders={setOrders} />
+            </div>
 
-                {/* 右側：RestaurantInfo 滿版 */}
-                <div className="col p-0">
-                    <RestaurantInfo restaurant={restaurant} />
-                </div>
+            {/* 右側：RestaurantInfo 滿版 */}
+            <div className="col">
+                <RestaurantInfo restaurant={restaurant} />
             </div>
         </div>
+    </div>
     )
 }
 

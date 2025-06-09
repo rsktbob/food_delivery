@@ -2,7 +2,7 @@ import React from 'react';
 
 function VendorOrderItem({ order, onAccept, onReject }) {
     return (
-        <div className={`list-group-item ${order.status === 'Accepted' ? 'list-group-item list-group-item-success' : 'list-group-item'}`}>
+        <div className={`list-group-item ${order.status === 'accepted' ? 'list-group-item list-group-item-success' : 'list-group-item'}`}>
             <div className="d-flex flex-column">
                 <div className="mb-1">
                     <strong>訂單編號:</strong> {order.id}
@@ -18,7 +18,7 @@ function VendorOrderItem({ order, onAccept, onReject }) {
 
                 {/* 按鈕區 */}
                 <div className="mt-3">
-                    {order.status !== 'Accepted' && (
+                    {order.status !== 'accepted' && (
                         <>
                             <button
                                 className="btn btn-success me-2"

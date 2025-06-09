@@ -12,6 +12,23 @@ class CustomerUser(BaseUser):
     def __str__(self):
         return f"Cusotmer: {self.username}"
     
+    def get_latest_order(self):
+        order = self.orders.exclude(status__in=['Done', 'Rejected']).first()
+        return order
+    
+    def create_cart(self, restaurant):
+        from order.models import Cart
+        
+        if hasattr(self, 'cart'):
+            self.cart.delete()
+        Cart.objects.create(customer=self, restaurant=restaurant)
+
+    def has_cart(self):
+        try:
+            return self.cart is not None
+        except AttributeError:
+            return False
+                    
 
 class CourierUser(BaseUser):
     rating = models.FloatField(default=0)
@@ -23,6 +40,17 @@ class CourierUser(BaseUser):
     
     def __str__(self):
         return f"Courier: {self.username}"
+    
+    def set_position(self, lat, lng):
+        self.latitude = lat
+        self.longitude = lng
+        self.save()
+
+    def take_order(self, order_id):
+        order = self.orders.get(id=order_id)
+        order.change_status('Assigned')
+        order.save()   
+
 
 class VendorUser(BaseUser):
     def __str__(self):

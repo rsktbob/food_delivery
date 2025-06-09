@@ -16,7 +16,7 @@ class CartItemSerializer(serializers.ModelSerializer):
 
 
 class OrderItemSerializer(serializers.ModelSerializer):
-    food_name = serializers.CharField(source='menu_item.name', read_only=True)
+    food_name = serializers.CharField(source='food_item.name', read_only=True)
     total_price = serializers.SerializerMethodField()
     
     class Meta:

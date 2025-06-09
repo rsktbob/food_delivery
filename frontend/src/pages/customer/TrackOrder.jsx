@@ -25,7 +25,7 @@ function TrackOrder({ user }) {
   
   const navigate = useNavigate();
   useEffect(() => {
-    if(order.status === 'Finish' || order.status === 'Reject'){
+    if(order.status === 'finish' || order.status === 'Reject'){
       navigate(`/`);
       CustomerDoneOrders(order.id)
     }

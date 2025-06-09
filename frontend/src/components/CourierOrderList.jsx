@@ -1,4 +1,4 @@
-import CouriorOrderItem from './VendorOrderItem'
+import CouriorOrderItem from './CouriorOrderItem'
 import { CourierCheckOrders } from '../api';
 import { useState, useEffect } from 'react';
 

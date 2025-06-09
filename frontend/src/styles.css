@@ -151,7 +151,7 @@ button[type="submit"]:disabled {
 .app-container {
   max-width: none   ;
   margin: 0 auto;
-  padding: 20px;
+  padding: 0px;
 }
 
 .app-header {
@@ -159,7 +159,7 @@ button[type="submit"]:disabled {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 30px;
-  padding-bottom: 15px;
+  padding: 15px;
   border-bottom: 1px solid #eee;
 }
 

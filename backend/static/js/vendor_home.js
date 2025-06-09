@@ -65,7 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Generate fake orders
     function generateFakeOrders(count = 15) {
-        const statuses = ['Created', 'Accepted', 'Assigned', 'Picked_Up', 'Finish'];
+        const statuses = ['created', 'accepted', 'assigned', 'picked_up', 'finish'];
         const orders = [];
         
         const now = new Date();
@@ -167,11 +167,11 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Count orders by status
         const counts = {
-            'Created': 0,
-            'Accepted': 0,
-            'Assigned': 0,
-            'Picked_Up': 0,
-            'Finish': 0
+            'created': 0,
+            'accepted': 0,
+            'assigned': 0,
+            'picked_Up': 0,
+            'finish': 0
         };
         
         orders.forEach(order => {
@@ -181,10 +181,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         
         // Update UI counters
-        pendingCount.textContent = counts['Created'];
-        acceptedCount.textContent = counts['Accepted'];
-        deliveryCount.textContent = counts['Assigned'] + counts['Picked_Up'];
-        completedCount.textContent = counts['Finish'];
+        pendingCount.textContent = counts['created'];
+        acceptedCount.textContent = counts['accepted'];
+        deliveryCount.textContent = counts['assigned'] + counts['picked_up'];
+        completedCount.textContent = counts['finish'];
     }
 
     // Display orders based on current filter
@@ -217,8 +217,8 @@ document.addEventListener('DOMContentLoaded', () => {
         // Sort orders: Created first, then by most recent
         filteredOrders.sort((a, b) => {
             // Put 'Created' status first
-            if (a.status === 'Created' && b.status !== 'Created') return -1;
-            if (a.status !== 'Created' && b.status === 'Created') return 1;
+            if (a.status === 'created' && b.status !== 'created') return -1;
+            if (a.status !== 'created' && b.status === 'created') return 1;
             
             // Then sort by date (most recent first)
             return new Date(b.created_at) - new Date(a.created_at);
@@ -291,9 +291,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Format order status for display
     function formatStatus(status) {
         switch (status) {
-            case 'Created':
+            case 'created':
                 return 'Pending';
-            case 'Picked_Up':
+            case 'picked_up':
                 return 'Picked Up';
             default:
                 return status;
@@ -302,7 +302,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Get appropriate action buttons based on order status
     function getOrderActions(order) {
-        if (order.status === 'Created') {
+        if (order.status === 'created') {
             return `
                 <button class="btn-accept" data-order-id="${order.id}">Accept Order</button>
                 <button class="btn-reject" data-order-id="${order.id}">Reject</button>
@@ -360,7 +360,7 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
         
         // Show/hide action buttons based on order status
-        if (order.status === 'Created') {
+        if (order.status === 'created') {
             acceptOrderBtn.style.display = 'block';
             rejectOrderBtn.style.display = 'block';
         } else {
@@ -399,7 +399,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         if (orderIndex !== -1) {
             // Update order status
-            orders[orderIndex].status = 'Accepted';
+            orders[orderIndex].status = 'accepted';
             
             // Update UI
             updateStats();
@@ -418,7 +418,7 @@ document.addEventListener('DOMContentLoaded', () => {
         showToast('Refreshing orders...');
         
         // Keep existing orders that aren't "Finish" status
-        const existingOrders = orders.filter(order => order.status !== 'Finish');
+        const existingOrders = orders.filter(order => order.status !== 'finish');
         
         // Generate some new orders (30% chance of new orders)
         const newOrderCount = Math.floor(Math.random() * 3); // 0-2 new orders

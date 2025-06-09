@@ -58,7 +58,7 @@ function RestaurantInfo({ restaurant }) {
               </div>
               <div>
                 <strong className="text-dark">電話：</strong>
-                <span className="text-muted ms-1 font-monospace">{restaurant.phone || '未提供'}</span>
+                <span className="text-muted ms-1 font-monospace">{restaurant.phone_number || '未提供'}</span>
               </div>
             </div>
           </div>

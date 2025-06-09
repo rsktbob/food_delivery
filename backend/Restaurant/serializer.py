@@ -11,9 +11,12 @@ from .models import *
 
 
 class RestaurantSerializer(serializers.ModelSerializer):
+    category = serializers.CharField(source="category.name", read_only=True)
+
     class Meta:
         model = Restaurant
-        fields = ['id', 'name', 'address', 'image', 'latitude', 'longitude']
+        fields = ['id', 'name', 'address', 'image', 'latitude', 
+                  'longitude', 'phone_number', 'category']
 
 class FoodItemSerializer(serializers.ModelSerializer):
     class Meta:

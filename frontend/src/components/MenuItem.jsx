@@ -1,4 +1,4 @@
-function MenuItem({ food, onDelete }) {
+function MenuItem({ food, onDelete, onEdit }) {
   return (
     <div className="card">
       {food.name && (
@@ -15,7 +15,7 @@ function MenuItem({ food, onDelete }) {
         <div className="d-flex justify-content-between">
           <button
             className="btn btn-warning"
-            onClick={() => {/* 編輯函數 */ }}
+            onClick={() => { onEdit(food.id, food) }}
           >
             編輯
           </button>

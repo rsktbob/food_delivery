@@ -14,7 +14,7 @@ class FoodCategory(models.Model):
 
 
 class Restaurant(models.Model):
-    owner = models.ForeignKey(VendorUser, on_delete=models.CASCADE, related_name='restaurants')
+    owner = models.OneToOneField(VendorUser, on_delete=models.CASCADE, related_name='restaurant')
     name = models.CharField(max_length=255)
     address = models.CharField(max_length=255)
     latitude = models.FloatField(null=True, blank=True)
@@ -41,20 +41,25 @@ class Restaurant(models.Model):
         print(R * c)
         return R * c  # 單位：公里
     
-class FoodCategory(models.Model):
-    name = models.CharField(max_length=100)
-    
-    def __str__(self):
-        return self.name
-    
-    class Meta:
-        verbose_name_plural = "Food Categories"
+    def add_food_item(self, name, price, image):
+        FoodItem.objects.create(
+            name=name, price=price,
+            restaurant=self, image=image
+        )
+
+    def delete_food_item(self, food_id):
+        food_item = self.food_items.get(id=food_id)
+        food_item.delete()
+
+    def get_orders(self):
+        return self.orders.filter(status__in=['created', 'accepted'])
+
 
 class FoodItem(models.Model):
     restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE, related_name='food_items')
     name = models.CharField(max_length=255)
     price = models.DecimalField(max_digits=8, decimal_places=2)
-    image = models.ImageField(upload_to='menu_items/')
+    image = models.ImageField(upload_to='food_items/')
     
     def __str__(self):
         return f"{self.name} - {self.restaurant.name}"

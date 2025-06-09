@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { 
   GoogleMap, 
@@ -8,6 +7,7 @@ import {
   DirectionsRenderer
 } from '@react-google-maps/api';
 import { CourierUpdatePos } from '../api';
+
 const mapContainerStyle = {
   width: '100%',
   height: '85vh'
@@ -27,6 +27,11 @@ function DeliveryMap({
   googleMapsApiKey = "AIzaSyCgoPkIvc9J-vnVbVDyYDztNTZngKPecEE"
 }) {
   const mapRef = useRef(null);
+  
+  // 加入缺少的 ref 宣告
+  const deliveryPositionRef = useRef();
+  const userIdRef = useRef();
+  
   const [deliveryPosition, setDeliveryPosition] = useState(initialPosition);
   const [directions, setDirections] = useState(null);
   const [activeRoute, setActiveRoute] = useState(null);
@@ -116,16 +121,53 @@ function DeliveryMap({
     }
   }, [isNavigating, selectedOrder, navigationStep]);
 
-  //更新外送員座標 !!!!!!!!!!要改!!!!!!!!!!!!!!
+  // 更新外送員座標 - 同步 ref 值
+  useEffect(() => {
+    deliveryPositionRef.current = deliveryPosition;
+  }, [deliveryPosition]);
+
+  useEffect(() => {
+    userIdRef.current = user?.id; // 加上可選鏈防止錯誤
+  }, [user?.id]);
+
+  // 輪詢邏輯保持依賴陣列為空
   useEffect(() => {
     const fetchOrders = async () => {
-      console.log(deliveryPosition.lat,deliveryPosition.lng)
-      CourierUpdatePos(user.id,deliveryPosition.lat,deliveryPosition.lng)//傳座標給後端
+      try {
+        // 從 ref 取得最新值
+        const currentPosition = deliveryPositionRef.current;
+        const currentUserId = userIdRef.current;
+        
+        // 更嚴格的檢查
+        if (!currentPosition?.lat || !currentPosition?.lng) {
+          console.log('位置資料不完整:', currentPosition);
+          return;
+        }
+        
+        if (!currentUserId) {
+          console.log('使用者 ID 不存在:', currentUserId);
+          return;
+        }
+        
+        console.log('送出位置:', currentPosition.lat, currentPosition.lng);
+        
+        // 呼叫後端 API，更新外送員的位置
+        await CourierUpdatePos(currentUserId, currentPosition.lat, currentPosition.lng);
+      } catch (error) {
+        // 若請求失敗，顯示錯誤訊息
+        console.error('位置更新失敗:', error);
+      }
     };
+
+    // 初次執行一次
     fetchOrders();
+
+    // 每 3 秒執行一次（純粹的定時輪詢）
     const interval = setInterval(fetchOrders, 3000);
+
+    // 清除定時器
     return () => clearInterval(interval);
-  },[deliveryPosition, user.id]);
+  }, []); // 依賴陣列保持空的
 
   // 檢查到達目的地
   useEffect(() => {
