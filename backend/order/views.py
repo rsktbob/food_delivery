@@ -59,6 +59,7 @@ class OrderController:
         food_id = request.data.get('food_id')
         quantity = request.data.get('quantity', 1)
 
+        print(quantity)
         if not food_id or quantity <= 0:
             return Response({'error': '資料不正確'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -73,7 +74,8 @@ class OrderController:
         # 檢查是否已經存在購物車項目
         cart_item, created = CartItem.objects.get_or_create(
             cart=cart,
-            food_item=food_item
+            food_item=food_item,
+            quantity=quantity
         )
 
         if not created:
@@ -158,7 +160,7 @@ class OrderController:
     @api_view(['GET'])
     def customer_get_order(request):
         user = request.user
-        customer = CustomerUser.objects.filter(id=user.id)
+        customer = CustomerUser.objects.get(id=user.id)
         order = customer.get_latest_order()
         serializer = OrderSerializer(order)
         return Response(serializer.data)

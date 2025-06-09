@@ -35,6 +35,12 @@ function CartPage({userId}){
         .catch(err => console.log("增加食物失敗:", err));
     }
 
+    const navigate = useNavigate();
+    const handleClick = () => {
+        navigate(`/order`);
+    };
+
+
     return (
         <div>
             <h2>我的購物車</h2>
@@ -53,6 +59,10 @@ function CartPage({userId}){
                     </div>
                 )}
             </div>
+            
+            <button className="btn btn-primary position-fixed" onClick={handleClick}>
+                結帳
+            </button>
 
         </div>
     )

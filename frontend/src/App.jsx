@@ -9,12 +9,12 @@ import { useNavigate } from 'react-router-dom';
 function App() {
   const [user, setUser] = useState(null);
   // 當組件初始化時，檢查是否有存儲在 localStorage 中的用戶資料
-  useEffect(() => {
-    const savedUser = localStorage.getItem("user");
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
-    }
-  }, []);
+  // useEffect(() => {
+  //   const savedUser = localStorage.getItem("user");
+  //   if (savedUser) {
+  //     setUser(JSON.parse(savedUser));
+  //   }
+  // }, []);
 
   const navigate = useNavigate();
 

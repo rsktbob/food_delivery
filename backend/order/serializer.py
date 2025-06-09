@@ -28,7 +28,7 @@ class OrderItemSerializer(serializers.ModelSerializer):
 
 
 class OrderSerializer(serializers.ModelSerializer):
-    customer = serializers.CharField(read_only=True)
+    customer = serializers.CharField(source='customer.username', read_only=True)
     restaurant = RestaurantSerializer(read_only=True)
     courier = CourierSerializer(read_only=True, allow_null=True)
     items = OrderItemSerializer(many=True, read_only=True)

@@ -5,6 +5,7 @@ function FoodCard({ food, onAddToCart }) {
 
   const handleAdd = () => {
     if (quantity > 0) {
+      console.log(quantity);
       onAddToCart(food.id, quantity);
     }
   };
