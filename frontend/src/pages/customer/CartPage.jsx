@@ -1,16 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { useParams,useNavigate } from 'react-router-dom';
-import { deleteCartItem, fetchCartItems } from '../../api';
+import { updateCartItemQuantity, deleteCartItem, fetchCart } from '../../api';
 import CartItem from '../../components/CartItem';
 import OrderForm from './OrderForm'
+
 function CartPage({userId}){
-    const [cartItems, setCartItems] = useState([]);
+    const [cart, setCart] = useState(
+        {
+            id:"",
+            items: [],
+            total_price: 0
+        }
+    );
     const [refresh, setRefresh] = useState(false);
 
     useEffect(() => {
-        fetchCartItems()
+        fetchCart()
             .then(data => {
-                setCartItems(data);
+                setCart(data);
                 console.log(data);
             })
             .catch(error => {
@@ -28,7 +35,7 @@ function CartPage({userId}){
     }
 
     const handleCartItemUpdate = (cartItemId, quantity) => {
-        UpdateCartItemQuantity(cartItemId, quantity)
+        updateCartItemQuantity(cartItemId, quantity)
         .then(response => {
             setRefresh(prev => !prev);
         })
@@ -47,17 +54,13 @@ function CartPage({userId}){
             <hr className="my-4" style={{ borderTop: '2px solid #333' }} />
             {/* 顯示購物車中的餐點 */}
             <div className="mt-4">
-                {cartItems.length === 0 ? (
-                    <p>暫無餐點項目</p>
-                ) : (
-                    <div className="row">
-                        {cartItems.map(item => (
-                            <div key={item.id} className="col-md-4 mb-3">
-                                <CartItem cartItem={item} onQuantityUpdate={handleCartItemUpdate} onRemove={handleCartItemDelete}></CartItem>
-                            </div>
-                        ))}
-                    </div>
-                )}
+                <div className="row">
+                    {cart.items.map(item => (
+                        <div key={item.id} className="col-md-4 mb-3">
+                            <CartItem cartItem={item} onQuantityUpdate={handleCartItemUpdate} onRemove={handleCartItemDelete}></CartItem>
+                        </div>
+                    ))}
+                </div>
             </div>
             
             <button className="btn btn-primary position-fixed" onClick={handleClick}>

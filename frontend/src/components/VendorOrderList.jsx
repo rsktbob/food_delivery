@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import VendorOrderItem from './VendorOrderItem'; // 假設你是這樣 import
-import { setOrderState } from '../api';
+import { restaurantAcceptOrder, restaurantRejectOrder } from '../api';
 
 
 function VendorOrderList({ orders, setOrders }) {
@@ -11,14 +11,14 @@ function VendorOrderList({ orders, setOrders }) {
     setOrders(prev =>
       prev.map(o => (o.id === orderId ? { ...o, status: 'accepted' } : o))
     );
-    setOrderState(orderId, 'accepted');
+    restaurantAcceptOrder(orderId);
   };
 
   // 處理拒絕訂單
   const handleReject = (orderId) => {
     console.log('拒絕訂單', orderId);
     setOrders(prev => prev.filter(o => o.id !== orderId));
-    setOrderState(orderId, 'rejected');
+    restaurantRejectOrder(orderId);
   };
 
   return (

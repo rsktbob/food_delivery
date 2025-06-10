@@ -20,7 +20,7 @@ function TrackOrder({ user }) {
       const interval = setInterval(fetchOrders, 3000);
   
       // 清理 interval 避免記憶體洩漏
-      // return () => clearInterval(interval);
+      return () => clearInterval(interval);
   }, []); // 只在組件 mount 時執行一次
   
   const navigate = useNavigate();

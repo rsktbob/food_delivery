@@ -12,10 +12,6 @@ class Cart(models.Model):
     def __str__(self):
         return f"{self.customer.username}'s Cart"
     
-    def clear(self):
-        self.cartitem_set.all().delete()
-        self.restaurant = None
-        self.save()
     
     def get_total_price(self):
         return sum(item.get_total_price() for item in self.items.all())
@@ -46,8 +42,19 @@ class Cart(models.Model):
 
     def set_item_quantity(self, cart_item_id, quantity):
         cart_item = self.items.get(id=cart_item_id)
-        cart_item.update_quantity(quantity)
-        
+        cart_item.set_quantity(quantity)
+
+    def add_item(self, food_item_id, quantity):
+        cart_item, created = CartItem.objects.get_or_create(
+            cart=self,
+            food_item_id=food_item_id
+        )
+
+        if not created:
+            cart_item.quantity += quantity
+        else:
+            cart_item.quantity = quantity
+        cart_item.save()
 
 class CartItem(models.Model):
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name="items")

@@ -14,6 +14,7 @@ function CouriorOrderList({
     // 定義 fetch 函式
     const fetchOrders = async () => {
       const data = await CourierCheckOrders();
+      console.log(data);
       setOrders(data);
     };
 

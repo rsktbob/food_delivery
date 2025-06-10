@@ -35,8 +35,7 @@ class OrderController:
             'id': order.id,
             'customer_name': order.customer.username,
             'restaurant': order.restaurant.name,
-            'distance': 100,
-            'fee': 100,
+            'distance': round(order.get_total_distance(courier.latitude, courier.longitude), 2),
             'restaurant_position': {
                 'lat': float(order.restaurant.latitude),
                 'lng': float(order.restaurant.longitude)
@@ -59,29 +58,10 @@ class OrderController:
         food_id = request.data.get('food_id')
         quantity = request.data.get('quantity', 1)
 
-        print(quantity)
-        if not food_id or quantity <= 0:
-            return Response({'error': '資料不正確'}, status=status.HTTP_400_BAD_REQUEST)
-
-        try:
-            food_item = FoodItem.objects.get(id=food_id)
-        except FoodItem.DoesNotExist:
-            return Response({'error': '找不到該食物'}, status=status.HTTP_404_NOT_FOUND)
-
         cart, created = Cart.objects.get_or_create(customer=customer, restaurant=restaurant)
         Cart.objects.exclude(customer=customer, restaurant=restaurant).delete()
-
-        # 檢查是否已經存在購物車項目
-        cart_item, created = CartItem.objects.get_or_create(
-            cart=cart,
-            food_item=food_item,
-        )
-
-        if not created:
-            cart_item.quantity += quantity
-        else:
-            cart_item.quantity = quantity
-        cart_item.save()
+        
+        cart.add_item(food_id, quantity)
 
         return Response({'message': "加入到購物車成功"}, status=status.HTTP_200_OK)
 
@@ -104,27 +84,35 @@ class OrderController:
     @staticmethod
     @api_view(['GET'])
     def get_cart(request):
-        print("aaaaaaaaaaaaaaaaaaaaaaaaaa")
         user = request.user
         customer = CustomerUser.objects.get(id=user.id)
-
-        if customer.has_cart():
-            cart = customer.cart
-        else:
-            cart = None
-        
+        cart = customer.get_cart()        
         serializer = CartSerializer(cart, context={'request': request})
-        print(serializer)
         return Response(serializer.data)
     
 
+    # @staticmethod
+    # @api_view(['POST'])
+    # def update_order_status(request, order_id):
+    #     new_status = request.data.get('status', '')
+    #     order = Order.objects.get(id=order_id)
+    #     order.change_status(new_status)
+    #     return Response({"message" : "已成功設定訂單狀態"}, status=status.HTTP_200_OK)
+
     @staticmethod
     @api_view(['POST'])
-    def update_order_status(request, order_id):
-        new_status = request.data.get('status', '')
+    def restaurant_accept_order(request, order_id):
         order = Order.objects.get(id=order_id)
-        order.change_status(new_status)
+        order.change_status('accepted')
         return Response({"message" : "已成功設定訂單狀態"}, status=status.HTTP_200_OK)
+    
+    @staticmethod
+    @api_view(['POST'])
+    def restaurant_reject_order(request, order_id):
+        order = Order.objects.get(id=order_id)
+        order.change_status('rejected')
+        return Response({"message" : "已成功設定訂單狀態"}, status=status.HTTP_200_OK)
+
 
     @staticmethod    
     @api_view(['DELETE'])
@@ -142,6 +130,7 @@ class OrderController:
         customer = CustomerUser.objects.get(id=user.id)
         cart = customer.cart
         cart.set_item_quantity(cart_item_id, new_quantity)
+        return Response({"message": "cart item的數量成功改變"}, status=status.HTTP_200_OK)
 
     @staticmethod
     @api_view(['POST'])
@@ -154,7 +143,6 @@ class OrderController:
     @staticmethod
     @api_view(['POST'])
     def courier_finish_Order(request):
-        print("aaaaaaaaaaaa")
         order_id = request.data.get('order_id')
         order = Order.objects.get(id=order_id)        
         order.change_status('finish')
@@ -186,7 +174,7 @@ class OrderController:
 
     @staticmethod
     @api_view(['POST'])
-    def mark_order_done(request):
+    def customer_done_order(request):
         order_id = request.data.get('order_id')
         order = Order.objects.get(id=order_id)
         order.change_status('Done')

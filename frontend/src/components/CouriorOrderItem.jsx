@@ -7,12 +7,11 @@ function CourierOrderItem({
   onShowDetails,        // 顯示詳情回調
   onStartNavigation,    // 開始導航回調
 }) {
-  const { id, customer_name, restaurant, distance, fee } = order;
 
   // 處理接單
   const handleAcceptOrder = async () => {
     try {
-      const response = await CourierTakeOrders(id, user.id);
+      const response = await CourierTakeOrders(order.id, user.id);
       const { success } = response;
       
       if (success === true) {
@@ -41,19 +40,16 @@ function CourierOrderItem({
     <div className={`list-group-item ${isSelected ? 'list-group-item-primary' : ''}`}>
       <div className="d-flex flex-column">
         <div className="mb-1">
-          <strong>訂單編號:</strong> {id}
+          <strong>訂單編號:</strong> {order.id}
         </div>
         <div className="mb-1">
-          <strong>客戶姓名:</strong> {customer_name}
+          <strong>客戶姓名:</strong> {order.customer}
         </div>
         <div className="mb-1">
-          <strong>餐廳:</strong> {restaurant}
+          <strong>餐廳:</strong> {order.restaurant}
         </div>
         <div className="mb-1">
-          <strong>距離:</strong> {distance} m
-        </div>
-        <div className="mb-2">
-          <strong>費用:</strong> NT$ {fee}
+          <strong>距離:</strong> {order.distance} km
         </div>
         
         <div className="d-flex justify-content-end gap-2">

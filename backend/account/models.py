@@ -13,7 +13,7 @@ class CustomerUser(BaseUser):
         return f"Cusotmer: {self.username}"
     
     def get_latest_order(self):
-        order = self.orders.exclude(status__in=['Done', 'Rejected']).first()
+        order = self.orders.exclude(status__in=['Done', 'Rejected']).last()
         return order
     
     def create_cart(self, restaurant):
@@ -28,6 +28,13 @@ class CustomerUser(BaseUser):
             return self.cart is not None
         except AttributeError:
             return False
+    
+    def get_cart(self):
+        if self.has_cart():
+            return self.cart
+        else:
+            return None
+    
                     
 
 class CourierUser(BaseUser):
