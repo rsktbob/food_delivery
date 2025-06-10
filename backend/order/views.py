@@ -152,7 +152,8 @@ class OrderController:
     @api_view(['POST'])
     def create_order(request):
         user = request.user
-        cart = Cart.objects.get(customer_id=user.id)
+        customer = CustomerUser.objects.get(id=user.id)
+        cart = customer.get_cart()
         pos = request.data.get('pos')
         lat = pos.get('lat')
         lng = pos.get('lng')
@@ -177,5 +178,5 @@ class OrderController:
     def customer_done_order(request):
         order_id = request.data.get('order_id')
         order = Order.objects.get(id=order_id)
-        order.change_status('Done')
+        order.change_status('done')
         return Response(status=status.HTTP_200_OK)

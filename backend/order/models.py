@@ -85,7 +85,7 @@ class Order(models.Model):
         ('assigned', 'Assigned'),#有外送員接單
         ('picked_up', 'Picked Up'),#外送員拿到餐點
         ('finish', 'Finish'),#外送員送到餐點
-        ('Done', 'Done'),
+        ('done', 'Done'),
         ('rejected', 'Rejected'),
     )
 
@@ -106,7 +106,7 @@ class Order(models.Model):
     delivery_address = models.CharField(max_length=255)
     latitude = models.FloatField(null=True, blank=True)
     longitude = models.FloatField(null=True, blank=True)
-    status = models.CharField(max_length=20, choices=ORDER_STATUS_CHOICES, default='Created')
+    status = models.CharField(max_length=20, choices=ORDER_STATUS_CHOICES, default='created')
     payment_method = models.CharField(max_length=20)
     total_price = models.DecimalField(max_digits=10, decimal_places=0, default=0)
     delivery_fee = models.DecimalField(max_digits=6, decimal_places=0, default=0)
@@ -146,13 +146,6 @@ class Order(models.Model):
         except Exception as e:
             print(e)
 
-# class CartItemCustomization(models.Model):
-#     cart_item = models.ForeignKey(CartItem, on_delete=models.CASCADE)
-#     choice = models.ForeignKey(CustomizationChoice, on_delete=models.CASCADE)
-    
-#     def __str__(self):
-#         return f"{self.cart_item.menu_item.name} - {self.choice.name}"
-
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')
     food_item = models.ForeignKey(FoodItem, on_delete=models.CASCADE)
@@ -163,14 +156,4 @@ class OrderItem(models.Model):
         return f"{self.quantity} x {self.food_item.name}"
     
     def get_total_price(self):
-        # customizations_price = sum(c.additional_price for c in self.orderitemcustomization_set.all())
         return self.unit_price * self.quantity
-
-# class OrderItemCustomization(models.Model):
-#     order_item = models.ForeignKey(OrderItem, on_delete=models.CASCADE, related_name='customizations')
-#     option_name = models.CharField(max_length=100)
-#     choice_name = models.CharField(max_length=100)
-#     additional_price = models.DecimalField(max_digits=6, decimal_places=2, default=0)
-    
-#     def __str__(self):
-#         return f"{self.order_item.menu_item.name} - {self.choice_name}"
