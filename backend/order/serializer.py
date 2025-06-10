@@ -9,11 +9,25 @@ from account.serializer import CourierSerializer
 
 class CartItemSerializer(serializers.ModelSerializer):
     foodItem = FoodItemSerializer(source="food_item")
-    
+    total_price = serializers.SerializerMethodField()
+
     class Meta:
         model = CartItem
-        fields = ['id', 'foodItem', 'quantity', 'special_instructions']
+        fields = ['id', 'foodItem', 'quantity', 'special_instructions', 'total_price']
 
+    def get_total_price(self, obj):
+        return obj.get_total_price()
+
+class CartSerializer(serializers.ModelSerializer):
+    items = CartItemSerializer(many=True, read_only=True)
+    total_price = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Cart
+        fields = ['id', 'total_price', 'items']
+
+    def get_total_price(self, obj):
+        return obj.get_total_price()
 
 class OrderItemSerializer(serializers.ModelSerializer):
     food_name = serializers.CharField(source='food_item.name', read_only=True)

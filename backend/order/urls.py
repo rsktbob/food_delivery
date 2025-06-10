@@ -15,4 +15,5 @@ urlpatterns = [
     path('api/create-orders/', views.OrderController.create_order),
     path('api/customer-get-order/', views.OrderController.customer_get_order),
     path('api/customer-done-order/', views.OrderController.mark_order_done),
+    path('api/cart-get/', views.OrderController.get_cart),
 ]

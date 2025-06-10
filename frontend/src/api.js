@@ -200,6 +200,20 @@ export const fetchCartItems = async () => {
   return response.json();
 }
 
+export const fetchCart = async () => {
+  const API_URL = `${API_BASE_URL}/cart-get`;
+
+  const response = await fetch(API_URL, {
+    method: 'GET',
+    credentials: 'include'
+  });
+
+  if (!response.ok) {
+    throw new Error('獲取購物車失敗');
+  }
+
+  return response.json();
+}
 
 export const addFoodItem = async (formData) => {
   const API_URL = `${API_BASE_URL}/food_items/add`;

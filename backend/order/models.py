@@ -18,7 +18,7 @@ class Cart(models.Model):
         self.save()
     
     def get_total_price(self):
-        return sum(item.get_total_price() for item in self.cartitem_set.all())
+        return sum(item.get_total_price() for item in self.items.all())
     
     def transfer_items_to_order(self, order):
         for item in self.items.all():
@@ -86,7 +86,7 @@ class Order(models.Model):
         'created': ['accepted', 'rejected'],
         'accepted': ['assigned'],
         'assigned': ['picked_up'],
-        'picked_Up': ['finish'],
+        'picked_up': ['finish'],
         'finish': ['done'],
         'done': [],
         'rejected': [],
@@ -95,14 +95,14 @@ class Order(models.Model):
 
     customer = models.ForeignKey(CustomerUser, on_delete=models.CASCADE, related_name='orders')
     restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE, related_name='orders')
-    courier = models.ForeignKey(CourierUser, on_delete=models.SET_NULL, null=True, blank=True, related_name='deliveries')
+    courier = models.ForeignKey(CourierUser, on_delete=models.SET_NULL, null=True, blank=True, related_name='orders')
     delivery_address = models.CharField(max_length=255)
     latitude = models.FloatField(null=True, blank=True)
     longitude = models.FloatField(null=True, blank=True)
     status = models.CharField(max_length=20, choices=ORDER_STATUS_CHOICES, default='Created')
     payment_method = models.CharField(max_length=20)
-    total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    delivery_fee = models.DecimalField(max_digits=6, decimal_places=2, default=0)
+    total_price = models.DecimalField(max_digits=10, decimal_places=0, default=0)
+    delivery_fee = models.DecimalField(max_digits=6, decimal_places=0, default=0)
     is_paid = models.BooleanField(default=False)
 
     def __str__(self):
@@ -114,6 +114,7 @@ class Order(models.Model):
         self.save()
     
     def is_in_delivery_distance(self, lat, lng, distance):
+        print(self.restaurant.get_distance(lat, lng))
         return self.restaurant.get_distance(lat, lng) < distance
     
     def change_status(self, new_status):
@@ -129,6 +130,14 @@ class Order(models.Model):
 
     def get_total_distance(self, lat, lng):
         return self.restaurant.get_distance(lat, lng) + self.restaurant.get_distance(self.latitude, self.longitude)
+    
+    def take_order(self, order_id):
+        try:
+            order = self.orders.get(id=order_id)
+            order.change_status('assigned')
+            order.save()
+        except Exception as e:
+            print(e)
 
 # class CartItemCustomization(models.Model):
 #     cart_item = models.ForeignKey(CartItem, on_delete=models.CASCADE)

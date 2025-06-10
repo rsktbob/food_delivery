@@ -100,7 +100,7 @@ function CourierOrderInfo({ selectedOrder }) {
                     <span className="fw-bold">{item.food_name}</span>
                     <span className="text-muted ms-2">x {item.quantity}</span>
                     </div>
-                    <span className="fw-bold">NT$ {parseFloat(item.food_price) * item.quantity}</span>
+                    <span className="fw-bold">NT$ {item.total_price}</span>
                 </div>
             ))}
             
@@ -110,7 +110,7 @@ function CourierOrderInfo({ selectedOrder }) {
             {/* 小計 */}
             <div className="d-flex justify-content-between mb-2">
               <span>小計</span>
-              <span>NT$ {subtotal}</span>
+              <span>NT$ {selectedOrder.total_price}</span>
             </div>
             
             {/* 外送費 */}

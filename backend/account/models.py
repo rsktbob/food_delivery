@@ -46,10 +46,13 @@ class CourierUser(BaseUser):
         self.longitude = lng
         self.save()
 
-    def take_order(self, order_id):
-        order = self.orders.get(id=order_id)
-        order.change_status('Assigned')
-        order.save()   
+    def take_order(self, order):
+        try:
+            order.change_status('assigned')
+            order.courier = self
+            order.save()
+        except Exception as e:
+            print(e)
 
 
 class VendorUser(BaseUser):

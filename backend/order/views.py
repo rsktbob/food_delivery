@@ -5,10 +5,8 @@ from django.contrib.auth import authenticate, login
 from django.db import transaction
 
 from .models import Order
-
-from .models import Order
 from .models import *
-from .serializer import CartItemSerializer,OrderSerializer
+from .serializer import CartItemSerializer,OrderSerializer, CartSerializer
 
 
 class OrderController:
@@ -16,18 +14,20 @@ class OrderController:
     @staticmethod
     @api_view(['POST'])
     def courier_take_order(request):
+        print("take try")
         order_id = request.data.get('order_id')
         courier_id = request.data.get('user_id')
+        order = Order.objects.get(id = order_id)
         courier = CourierUser.objects.get(id=courier_id)
-        courier.take_order(order_id)
-        return Response({'message': "courier取單成功"}, status=status.HTTP_200_OK)
+        courier.take_order(order)
+        return Response({'success': True}, status=status.HTTP_200_OK)
     
     @staticmethod
     @api_view(['GET'])
     def list_available_orders_for_courier(request):
         user = request.user
         courier = CourierUser.objects.filter(id=user.id).first()
-        orders = Order.objects.filter(status='Accepted')
+        orders = Order.objects.filter(status='accepted')
         
 
         # 使用字典推導式構建數據
@@ -75,12 +75,13 @@ class OrderController:
         cart_item, created = CartItem.objects.get_or_create(
             cart=cart,
             food_item=food_item,
-            quantity=quantity
         )
 
         if not created:
             cart_item.quantity += quantity
-            cart_item.save()
+        else:
+            cart_item.quantity = quantity
+        cart_item.save()
 
         return Response({'message': "加入到購物車成功"}, status=status.HTTP_200_OK)
 
@@ -100,6 +101,23 @@ class OrderController:
         
         return Response(serializer.data)
     
+    @staticmethod
+    @api_view(['GET'])
+    def get_cart(request):
+        print("aaaaaaaaaaaaaaaaaaaaaaaaaa")
+        user = request.user
+        customer = CustomerUser.objects.get(id=user.id)
+
+        if customer.has_cart():
+            cart = customer.cart
+        else:
+            cart = None
+        
+        serializer = CartSerializer(cart, context={'request': request})
+        print(serializer)
+        return Response(serializer.data)
+    
+
     @staticmethod
     @api_view(['POST'])
     def update_order_status(request, order_id):
@@ -136,6 +154,7 @@ class OrderController:
     @staticmethod
     @api_view(['POST'])
     def courier_finish_Order(request):
+        print("aaaaaaaaaaaa")
         order_id = request.data.get('order_id')
         order = Order.objects.get(id=order_id)        
         order.change_status('finish')

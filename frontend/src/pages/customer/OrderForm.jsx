@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { fetchCartItems, createOrders } from '../../api'
+import { fetchCart, createOrders } from '../../api'
 import { useJsApiLoader } from '@react-google-maps/api';
 import { useNavigate } from 'react-router-dom';
 
 export default function OrderForm({user}) {
   const [address, setAddress] = useState(user.address);
   const [payment, setPayment] = useState(null);
-  const [cartItems, setCartItems] = useState([]);
+  const [cart, setCart] = useState({
+    id: "",
+    total_price: 0,
+    items:[]
+  });
 
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
@@ -56,9 +60,9 @@ export default function OrderForm({user}) {
   };
 
   useEffect(() => {
-    fetchCartItems()
+    fetchCart()
       .then(data => {
-        setCartItems(data);
+        setCart(data);
         console.log(data);
       })
       .catch(error => {
@@ -97,14 +101,14 @@ export default function OrderForm({user}) {
 
           <div className="mb-4">
             <label className="form-label"><strong>品項</strong></label>
-            {cartItems.map(item => (
-              <div key={item.id}>{item.foodItem.name} x {item.quantity}</div>
+            {cart.items.map(item => (
+              <div key={item.id}>{item.foodItem.name} x {item.quantity}  </div>
             ))}
           </div>
 
           <div className="mb-4">
             <label className="form-label"><strong>總金額</strong></label>
-            <div className="fs-5 text-primary">NT$ 350</div>
+            <div className="fs-5 text-primary">NT$ {cart.total_price}</div>
           </div>
           
           <div className="d-grid">

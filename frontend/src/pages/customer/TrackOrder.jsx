@@ -26,6 +26,7 @@ function TrackOrder({ user }) {
   const navigate = useNavigate();
   useEffect(() => {
     if(order.status === 'finish' || order.status === 'Reject'){
+      alert("訂單已送達")
       navigate(`/`);
       CustomerDoneOrders(order.id)
     }
