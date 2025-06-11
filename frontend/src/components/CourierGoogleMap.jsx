@@ -149,8 +149,6 @@ function DeliveryMap({
           return;
         }
         
-        console.log('送出位置:', currentPosition.lat, currentPosition.lng);
-        
         // 呼叫後端 API，更新外送員的位置
         await CourierUpdatePos(currentUserId, currentPosition.lat, currentPosition.lng);
       } catch (error) {

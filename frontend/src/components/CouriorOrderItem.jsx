@@ -43,13 +43,16 @@ function CourierOrderItem({
           <strong>訂單編號:</strong> {order.id}
         </div>
         <div className="mb-1">
-          <strong>客戶姓名:</strong> {order.customer}
+          <strong>客戶姓名:</strong> {order.customer_name}
         </div>
         <div className="mb-1">
           <strong>餐廳:</strong> {order.restaurant}
         </div>
         <div className="mb-1">
           <strong>距離:</strong> {order.distance} km
+        </div>
+        <div className="mb-1">
+          <strong>外送費:</strong> {order.fee} 元
         </div>
         
         <div className="d-flex justify-content-end gap-2">

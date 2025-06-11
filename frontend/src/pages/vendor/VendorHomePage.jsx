@@ -30,6 +30,7 @@ function VendorHomePage({user}){
             .then(data => setOrders(data))
             .catch(error => console.log(`error: ${error}`));
         }
+        console.log(orders)
         };
 
         fetchOrders(); // 先抓一次訂單

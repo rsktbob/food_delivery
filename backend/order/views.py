@@ -1,12 +1,10 @@
-from rest_framework import status, viewsets
+from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from django.contrib.auth import authenticate, login
-from django.db import transaction
 
-from .models import Order
-from .models import *
-from .serializer import CartItemSerializer,OrderSerializer, CartSerializer
+from .models import Order, Cart, CartItem
+from .serializer import CartItemSerializer, OrderSerializer, CartSerializer
 
 
 class OrderController:
@@ -14,53 +12,38 @@ class OrderController:
     @staticmethod
     @api_view(['POST'])
     def courier_take_order(request):
-        print("take try")
+        """
+        Controller: 只處理 HTTP 請求，委託給 Order 處理業務邏輯
+        """
         order_id = request.data.get('order_id')
         courier_id = request.data.get('user_id')
-        order = Order.objects.get(id = order_id)
-        courier = CourierUser.objects.get(id=courier_id)
-        courier.take_order(order)
-        return Response({'success': True}, status=status.HTTP_200_OK)
+        
+        order = Order.objects.get(id=order_id)
+        success = order.assign_courier(courier_id)
+        
+        return Response({'success': success}, status=status.HTTP_200_OK)
     
     @staticmethod
     @api_view(['GET'])
     def list_available_orders_for_courier(request):
-        user = request.user
-        courier = CourierUser.objects.filter(id=user.id).first()
-        orders = Order.objects.filter(status='accepted')
-        
-
-        # 使用字典推導式構建數據
-        orders_data = [{
-            'id': order.id,
-            'customer_name': order.customer.username,
-            'restaurant': order.restaurant.name,
-            'distance': round(order.get_total_distance(courier.latitude, courier.longitude), 2),
-            'restaurant_position': {
-                'lat': float(order.restaurant.latitude),
-                'lng': float(order.restaurant.longitude)
-            },
-            # 新增顧客位置信息  
-            'customer_position': {
-                'lat': float(order.latitude),
-                'lng': float(order.longitude)
-            }
-        } for order in orders if order.is_in_delivery_distance(courier.latitude,courier.longitude,5)]
-
-        return Response(orders_data)  # 直接返回數組
+        """
+        Controller: 委託給 Order 處理查詢邏輯
+        """
+        courier_id = request.user.id
+        orders_data = Order.get_available_orders_for_courier(courier_id)
+        return Response(orders_data)
 
     @staticmethod
     @api_view(['POST'])
     def add_to_cart(request, restaurant_id):
-        user = request.user
-        customer = CustomerUser.objects.get(id=user.id)
-        restaurant = Restaurant.objects.get(id=restaurant_id)
+        """
+        Controller: 委託給 Cart 處理購物車邏輯
+        """
+        customer_id = request.user.id
         food_id = request.data.get('food_id')
         quantity = request.data.get('quantity', 1)
 
-        cart, created = Cart.objects.get_or_create(customer=customer, restaurant=restaurant)
-        Cart.objects.exclude(customer=customer, restaurant=restaurant).delete()
-        
+        cart = Cart.get_or_create_for_customer(customer_id, restaurant_id)
         cart.add_item(food_id, quantity)
 
         return Response({'message': "加入到購物車成功"}, status=status.HTTP_200_OK)
@@ -68,55 +51,68 @@ class OrderController:
     @staticmethod
     @api_view(['GET'])
     def list_cart_items(request):
-        user = request.user
-        customer = CustomerUser.objects.get(id=user.id)
-
-        if customer.has_cart():
+        """
+        Controller: 簡單的查詢，委託給 Cart
+        """
+        customer_id = request.user.id
+        
+        try:
+            from account.models import CustomerUser
+            customer = CustomerUser.objects.get(id=customer_id)
             cart = customer.cart
             cart_items = cart.items.all()
-        else:
+        except:
             cart_items = []
         
         serializer = CartItemSerializer(cart_items, many=True, context={'request': request})
-        
         return Response(serializer.data)
     
     @staticmethod
     @api_view(['GET'])
     def get_cart(request):
-        user = request.user
-        customer = CustomerUser.objects.get(id=user.id)
-        cart = customer.get_cart()        
+        """
+        Controller: 簡單的查詢，委託給 Cart
+        """
+        customer_id = request.user.id
+        
+        try:
+            cart = Cart.objects.get(customer_id=customer_id)
+        except Cart.DoesNotExist:
+            cart = None
+            
         serializer = CartSerializer(cart, context={'request': request})
         return Response(serializer.data)
-    
-
-    # @staticmethod
-    # @api_view(['POST'])
-    # def update_order_status(request, order_id):
-    #     new_status = request.data.get('status', '')
-    #     order = Order.objects.get(id=order_id)
-    #     order.change_status(new_status)
-    #     return Response({"message" : "已成功設定訂單狀態"}, status=status.HTTP_200_OK)
 
     @staticmethod
     @api_view(['POST'])
     def restaurant_accept_order(request, order_id):
+        """
+        Controller: 委託給 Order 處理狀態變更
+        """
         order = Order.objects.get(id=order_id)
-        order.change_status('accepted')
-        return Response({"message" : "已成功設定訂單狀態"}, status=status.HTTP_200_OK)
+        success = order.change_status('accepted')
+        
+        message = "已成功設定訂單狀態" if success else "狀態變更失敗"
+        return Response({"message": message}, status=status.HTTP_200_OK)
     
     @staticmethod
     @api_view(['POST'])
     def restaurant_reject_order(request, order_id):
+        """
+        Controller: 委託給 Order 處理狀態變更
+        """
         order = Order.objects.get(id=order_id)
-        order.change_status('rejected')
-        return Response({"message" : "已成功設定訂單狀態"}, status=status.HTTP_200_OK)
-
+        success = order.change_status('rejected')
+        
+        message = "已成功設定訂單狀態" if success else "狀態變更失敗"
+        return Response({"message": message}, status=status.HTTP_200_OK)
 
     @staticmethod    
     @api_view(['DELETE'])
     def delete_cart_items(request, cart_item_id):
+        """
+        Controller: 簡單的刪除操作
+        """
         cart_item = CartItem.objects.get(id=cart_item_id)
         cart_item.delete()
 
@@ -125,58 +121,80 @@ class OrderController:
     @staticmethod
     @api_view(['POST'])
     def update_cart_item_quantity(request, cart_item_id): 
+        """
+        Controller: 委託給 Cart 處理數量變更
+        """
         new_quantity = int(request.data.get("quantity", 0))
-        user = request.user
-        customer = CustomerUser.objects.get(id=user.id)
-        cart = customer.cart
+        customer_id = request.user.id
+        
+        cart = Cart.objects.get(customer_id=customer_id)
         cart.set_item_quantity(cart_item_id, new_quantity)
+        
         return Response({"message": "cart item的數量成功改變"}, status=status.HTTP_200_OK)
 
     @staticmethod
     @api_view(['POST'])
     def courier_pick_up_meal(request):
+        """
+        Controller: 委託給 Order 處理狀態變更
+        """
         order_id = request.data.get('order_id')
         order = Order.objects.get(id=order_id)
         order.change_status('picked_up')
+        
         return Response(status=status.HTTP_200_OK)
 
     @staticmethod
     @api_view(['POST'])
     def courier_finish_Order(request):
+        """
+        Controller: 委託給 Order 處理狀態變更
+        """
         order_id = request.data.get('order_id')
         order = Order.objects.get(id=order_id)        
         order.change_status('finish')
+        
         return Response(status=status.HTTP_200_OK)
 
     @staticmethod
     @api_view(['POST'])
     def create_order(request):
-        user = request.user
-        customer = CustomerUser.objects.get(id=user.id)
-        cart = customer.get_cart()
-        pos = request.data.get('pos')
-        lat = pos.get('lat')
-        lng = pos.get('lng')
-        address = request.data.get('address')
-        payment = request.data.get('payment')
-
-        cart.create_order(lat, lng, address, payment)
-
+        """
+        Controller: 委託給 Cart 處理訂單創建
+        """
+        customer_id = request.user.id
+        cart = Cart.objects.get(customer_id=customer_id)
+        
+        delivery_info = {
+            'lat': request.data.get('pos')['lat'],
+            'lng': request.data.get('pos')['lng'],
+            'address': request.data.get('address'),
+            'payment': request.data.get('payment')
+        }
+        
+        order = cart.create_order(delivery_info)
         return Response(status=status.HTTP_200_OK)
 
     @staticmethod
     @api_view(['GET'])
     def customer_get_order(request):
-        user = request.user
-        customer = CustomerUser.objects.get(id=user.id)
-        order = customer.get_latest_order()
+        """
+        Controller: 委託給 Order 處理查詢
+        """
+        customer_id = request.user.id
+        order = Order.get_latest_order_for_customer(customer_id)
+        
         serializer = OrderSerializer(order)
         return Response(serializer.data)
 
     @staticmethod
     @api_view(['POST'])
     def customer_done_order(request):
+        """
+        Controller: 委託給 Order 處理狀態變更
+        """
         order_id = request.data.get('order_id')
         order = Order.objects.get(id=order_id)
         order.change_status('done')
+        
         return Response(status=status.HTTP_200_OK)
