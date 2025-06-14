@@ -48,24 +48,24 @@ class OrderController:
 
         return Response({'message': "加入到購物車成功"}, status=status.HTTP_200_OK)
 
-    @staticmethod
-    @api_view(['GET'])
-    def list_cart_items(request):
-        """
-        Controller: 簡單的查詢，委託給 Cart
-        """
-        customer_id = request.user.id
+    # @staticmethod
+    # @api_view(['GET'])
+    # def list_cart_items(request):
+    #     """
+    #     Controller: 簡單的查詢，委託給 Cart
+    #     """
+    #     customer_id = request.user.id
         
-        try:
-            from account.models import CustomerUser
-            customer = CustomerUser.objects.get(id=customer_id)
-            cart = customer.cart
-            cart_items = cart.items.all()
-        except:
-            cart_items = []
+    #     try:
+    #         from account.models import CustomerUser
+    #         customer = CustomerUser.objects.get(id=customer_id)
+    #         cart = customer.cart
+    #         cart_items = cart.items.all()
+    #     except:
+    #         cart_items = []
         
-        serializer = CartItemSerializer(cart_items, many=True, context={'request': request})
-        return Response(serializer.data)
+    #     serializer = CartItemSerializer(cart_items, many=True, context={'request': request})
+    #     return Response(serializer.data)
     
     @staticmethod
     @api_view(['GET'])

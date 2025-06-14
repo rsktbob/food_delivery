@@ -4,7 +4,7 @@ from . import views
 urlpatterns = [
     path('api/courier-take-orders/', views.OrderController.courier_take_order),
     path('api/restaurants/<int:restaurant_id>/cart/add', views.OrderController.add_to_cart),
-    path('api/cart', views.OrderController.list_cart_items),
+    # path('api/cart', views.OrderController.list_cart_items),
     path('api/cart/<int:cart_item_id>/delete', views.OrderController.delete_cart_items),
     path('api/cart/<int:cart_item_id>/update', views.OrderController.update_cart_item_quantity),
     # path('api/orders/<int:order_id>/status/', views.OrderController.update_order_status),
@@ -16,6 +16,6 @@ urlpatterns = [
     path('api/customer-get-order/', views.OrderController.customer_get_order),
     path('api/customer-done-order/', views.OrderController.customer_done_order),
     path('api/restaurant-accept-order/<int:order_id>', views.OrderController.restaurant_accept_order),
-     path('api/restaurant-reject-order/<int:order_id>', views.OrderController.restaurant_reject_order),
+    path('api/restaurant-reject-order/<int:order_id>', views.OrderController.restaurant_reject_order),
     path('api/cart/', views.OrderController.get_cart),
 ]

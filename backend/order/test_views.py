@@ -85,18 +85,28 @@ class OrderControllerTest(TestCase):
             'user_id': self.courier.id
         }
         
-        request = self.factory.post('/api/courier-take-order/', request_data, format='json')
+        # 創建 POST 請求
+        request = self.factory.post(
+            '/api/courier-take-orders/', 
+            data=request_data, 
+            format='json'
+        )
         force_authenticate(request, user=self.courier)
         
-        # Mock Order.objects.get 和 assign_courier
-        with patch('order.views.Order.objects.get', return_value=self.order):
+        # Mock Order.objects.get 和 assign_courier 方法
+        with patch('order.views.Order.objects.get', return_value=self.order) as mock_get:
             with patch.object(self.order, 'assign_courier', return_value=True) as mock_assign:
-                # 直接調用靜態方法
+                
+                # 調用控制器方法
                 response = OrderController.courier_take_order(request)
+                
+                # 驗證 mock 調用
+                mock_get.assert_called_once_with(id=self.order.id)
+                mock_assign.assert_called_once_with(self.courier.id)
         
-        mock_assign.assert_called_once_with(self.courier.id)
+        # 驗證回應
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertTrue(response.data['success'])
+        self.assertEqual(response.data['success'], True)
 
     def test_courier_take_order_failure(self):
         """測試 courier_take_order - 接單失敗"""
@@ -174,62 +184,6 @@ class OrderControllerTest(TestCase):
                 response = OrderController.add_to_cart(request, self.restaurant.id)
         
         mock_add_item.assert_called_once_with(self.food_item.id, 1)  # 預設數量為 1
-
-    def test_list_cart_items_with_cart(self):
-        """測試 list_cart_items - 有購物車"""
-        cart_item = CartItem.objects.create(
-            cart=self.cart,
-            food_item=self.food_item,
-            quantity=2
-        )
-        
-        request = self.factory.get('/api/cart/items/')
-        force_authenticate(request, user=self.customer)
-        
-        # Mock CustomerUser.objects.get
-        mock_customer = MagicMock()
-        mock_customer.cart = self.cart
-        
-        # Mock CartItemSerializer
-        expected_data = [
-            {
-                'id': cart_item.id,
-                'food_item': {
-                    'id': self.food_item.id,
-                    'name': 'Test Food',
-                    'price': '100.00'
-                },
-                'quantity': 2
-            }
-        ]
-        
-        with patch('order.views.CustomerUser.objects.get', return_value=mock_customer):
-            with patch('order.views.CartItemSerializer') as mock_serializer:
-                mock_serializer_instance = MagicMock()
-                mock_serializer_instance.data = expected_data
-                mock_serializer.return_value = mock_serializer_instance
-                
-                response = OrderController.list_cart_items(request)
-        
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data, expected_data)
-
-    def test_list_cart_items_no_cart(self):
-        """測試 list_cart_items - 無購物車"""
-        request = self.factory.get('/api/cart/items/')
-        force_authenticate(request, user=self.customer)
-        
-        # Mock exception
-        with patch('order.views.CustomerUser.objects.get', side_effect=Exception("No cart")):
-            with patch('order.views.CartItemSerializer') as mock_serializer:
-                mock_serializer_instance = MagicMock()
-                mock_serializer_instance.data = []
-                mock_serializer.return_value = mock_serializer_instance
-                
-                response = OrderController.list_cart_items(request)
-        
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data, [])
 
     def test_get_cart_exists(self):
         """測試 get_cart - 購物車存在"""
